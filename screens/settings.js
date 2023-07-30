@@ -1,5 +1,7 @@
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View, ScrollView} from 'react-native';
 import { useState, useRef } from 'react';
+import { Button } from 'react-native'
+import { Auth } from 'aws-amplify';
 
 export default function SettingsPage() {
 
@@ -41,6 +43,10 @@ export default function SettingsPage() {
         }
     }
 
+    const signOut = () => {
+      Auth.signOut()
+    }
+
     return (
         <View style={styles.container}>
           {/* Main Content Container */}
@@ -70,6 +76,11 @@ export default function SettingsPage() {
                         <Text style={styles.planDescText}>-Access advanced, in-depth statistics </Text>
                     </View>
                 </View>
+
+                <TouchableOpacity style={styles.signOutButton} onPress={signOut}>
+                    <Text style={styles.signOutButtonText}>Sign Out</Text>
+                </TouchableOpacity>
+
           </ScrollView>
         </View>
       );
@@ -105,6 +116,7 @@ const styles = StyleSheet.create({
 
       planContainer: {
         marginTop:10,
+        marginBottom:10,
         height:140,
         padding:5,
         width:'100%',
@@ -150,5 +162,15 @@ const styles = StyleSheet.create({
         color:'white',
         fontSize:12,
         fontFamily:font
+      },
+
+      signOutButton: {
+        marginTop: 15,
+        alignSelf: 'center'
+      },
+
+      signOutButtonText: {
+        color:'white',
+        fontFamily: heavyFont
       }
 });
