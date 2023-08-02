@@ -1,11 +1,17 @@
-import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View, ScrollView} from 'react-native';
-import { useState, useRef } from 'react';
+import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View, ScrollView, Alert} from 'react-native';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from 'react-native'
-import { Auth } from 'aws-amplify';
+import { API, Auth } from 'aws-amplify';
+import Purchases from 'react-native-purchases';
+import { API_KEY } from '../constants';
+import { ENTITLEMENT_ID } from '../constants';
 
-export default function SettingsPage() {
+export default function SettingsPage({ navigation }) {
 
     const [currentPlan, setCurrentPlan] = useState("basic")
+    const [packages, setPackages] = useState([])
+    const [isPurchasing, setIsPurchasing] = useState(false)
+    const [offerings, setOfferings] = useState(null)
 
     const renderPlanHighlight = (plan) => {
         if (plan === currentPlan) {
@@ -43,6 +49,74 @@ export default function SettingsPage() {
         }
     }
 
+    const checkUserSubscription = async () => {
+      const purchaserInfo = await Purchases.getCustomerInfo()
+      if (typeof purchaserInfo.entitlements.active[ENTITLEMENT_ID] !== "undefined") {
+        setCurrentPlan('pro')
+      } else {
+        setCurrentPlan('basic')
+      }
+    }
+
+    const makePurchase = async () => {
+
+      if (currentPlan === "pro") {
+        return
+      }
+
+      console.log("GOT HERE 1")
+      console.log(packages)
+
+      await Purchases.configure({apiKey: API_KEY})
+      try {
+        console.log("Running Purchases.purchasePackage...")
+        const { purchaserInfo } = await Purchases.purchasePackage(packages[0])
+
+        if (typeof purchaserInfo.entitlements.active[ENTITLEMENT_ID] !== "undefined") {//sus
+          console.log("GOT HERE!!!!!!!!!!!!!")
+          navigation.goBack()
+          setCurrentPlan('pro')
+        } 
+      } catch (error) {
+        console.log(JSON.stringify(error))
+        if (error.userCancelled) {
+          Alert.alert(error.message)
+        }
+      }
+
+    }
+
+    const restorePurchase = async () => {
+      try {
+        const restore = await Purchases.restorePurchases()
+
+      } catch (error) {
+        Alert.alert(error.message)
+      }
+    }
+
+    useEffect(()=>{
+
+      const getPackages = async () => {
+
+        await Purchases.configure({apiKey: API_KEY})
+
+        try {
+          const offerings = await Purchases.getOfferings()
+          if (offerings.current !== null) {
+            const availablePackages = offerings['all']['Default']['availablePackages']
+            setPackages(availablePackages)
+          }
+        } catch (error) {
+          console.log("GOT HERE")
+          console.log(error)
+        }
+      }
+
+      getPackages()
+      checkUserSubscription()
+    }, [])
+
     const signOut = () => {
       Auth.signOut()
     }
@@ -55,7 +129,7 @@ export default function SettingsPage() {
 
                 {/* Plan Settings */}
                 <Text style={styles.planSectionHeaderText}>Your Plan</Text>
-                <View style={renderPlanHighlight('basic')}>
+                <TouchableOpacity style={renderPlanHighlight('basic')}>
                     <View style={styles.planContainerLeft}>
                         <Text style={styles.planText}>Basic</Text>
                     </View>
@@ -64,21 +138,21 @@ export default function SettingsPage() {
                         {/* <Text style={styles.planDescText}>7 successful Strikezone Captures per week</Text> */}
                         <Text style={styles.planDescText}>-Access essential statistics</Text>
                     </View>
-                </View>
-                <View style={renderPlanHighlight('premium')}>
+                </TouchableOpacity>
+                <TouchableOpacity style={renderPlanHighlight('pro')} onPress={makePurchase}>
                     <View style={styles.planContainerLeft}>
-                        <Text style={styles.planText}>Premium</Text>
-                        <Text style={styles.planPriceText}>Coming soon</Text>
+                        <Text style={styles.planText}>Pro*</Text>
+                        <Text style={styles.planPriceText}>$0.99 per month</Text>
                     </View>
                     <View style={styles.planContainerRight}>
                         {/* <Text style={styles.planDescText}>7 successful Strikezone captures per day </Text> */}
                         <Text style={styles.planDescText}>-Compare your statistics to worldwide averages </Text>
-                        <Text style={styles.planDescText}>-Access advanced, in-depth statistics </Text>
                     </View>
-                </View>
+                </TouchableOpacity>
+                <Text style={styles.restartAppText}>*After purchasing SpareStatistics Pro, restart the app for the effects to take place</Text>
 
-                <TouchableOpacity style={styles.signOutButton} onPress={signOut}>
-                    <Text style={styles.signOutButtonText}>Sign Out</Text>
+                <TouchableOpacity style={styles.signOutButton} onPress={restorePurchase}>
+                    <Text style={styles.signOutButtonText}>Restore Purchase</Text>
                 </TouchableOpacity>
 
           </ScrollView>
@@ -172,5 +246,13 @@ const styles = StyleSheet.create({
       signOutButtonText: {
         color:'white',
         fontFamily: heavyFont
+      },
+
+      restartAppText: {
+        color:'white',
+        fontFamily: font,
+        fontSize: 8,
+        padding:5,
+        textAlign:'center'
       }
 });

@@ -5,6 +5,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { calcAvgMetric, findMedian, findBest } from './statsUtility';
 import { useFocusEffect } from '@react-navigation/native';
 import * as React from 'react';
+import Purchases from 'react-native-purchases';
+import { API_KEY, ENTITLEMENT_ID } from '../constants';
 
 // const interstitial = InterstitialAd.createForAdRequest(TestIds.INTERSTITIAL, {
 //   requestNonPersonalizedAdsOnly: true
@@ -26,6 +28,7 @@ export default function StatsPage({ navigation }) {
       "avgFirstBallPinfall": "N/A",
       "avgOnePinConvertPercent": "N/A"
     })
+    const [userGames, setUserGames] = useState([])
     const [interstitialLoaded, setInterstitialLoaded] = useState(false)
     const [plan, setPlan] = useState('basic')
 
@@ -51,6 +54,7 @@ export default function StatsPage({ navigation }) {
   
         if (games !== null) {
           games = JSON.parse(games)
+          setUserGames(games)
 
           // Set the average
           let userGameDataTemp = userGameData
@@ -68,6 +72,7 @@ export default function StatsPage({ navigation }) {
 
           setUserGameData(userGameDataTemp)
           return userGameDataTemp
+        } else {
         }
       } catch (error) {
         alert(error)
@@ -138,7 +143,7 @@ export default function StatsPage({ navigation }) {
     // Determines whether or not to display the message describing global scores
     // If the user has the premium plan, the message is loaded
     const doRenderGlobalScoreDescription = () => {
-      if (plan === 'premium') {
+      if (plan === 'pro') {
         return <Text style={{color:'white', fontFamily:font, marginTop:20}}>Global statistics are in parenthesis and are based on the last 1,000 games submitted worldwide.</Text>
       } else {
         return
@@ -148,7 +153,7 @@ export default function StatsPage({ navigation }) {
     // Determines whether or not global metrics are rendered
     // If the user has the premium plan, the stat is loaded
     const doRenderGlobalScores = (metric) => {
-      if (plan === 'premium') {
+      if (plan === 'pro') {
         return ` (${globalGameData[metric]})`
       } else {
         return ""
@@ -180,10 +185,33 @@ export default function StatsPage({ navigation }) {
       // }
     }
 
+    // Check if the user has paid for pro
+    const checkUserSubscription = async () => {
+
+      await Purchases.configure({apiKey: API_KEY})
+
+      const purchaserInfo = await Purchases.getCustomerInfo()
+      console.log(purchaserInfo)
+      console.log(purchaserInfo.entitlements.active[ENTITLEMENT_ID])
+      if (typeof purchaserInfo.entitlements.active[ENTITLEMENT_ID] !== "undefined") {
+        setPlan('pro')
+      } else {
+        setPlan('basic')
+      }
+    }
+
     // useEffect for when the component is rendered for the first time
     useEffect(() => {
+      // Get global game data
       fetchData();
+
+      // Set the necessary things in storage if this is the first time the user is opening the app
       initializeApp();
+
+      // Check whether or not the user is subscribed
+      checkUserSubscription()
+
+      // Calculate the game statistics
       calculateGameStats(numGames);
     }, []);
 
@@ -191,92 +219,97 @@ export default function StatsPage({ navigation }) {
       React.useCallback(() => {
         let gameStats = calculateGameStats(numGames);
         setUserGameData(gameStats)
+        checkUserSubscription()
       }, [])
     );
 
-    // useEffect for when the user goes back to the page
-    // useEffect(() => {
-    //   if (isFocused) {
-    //     calculateGameStats(numGames);
-    //   }
-    // }, [isFocused]);
+    // Render the statistics if the user has games
+    // Otherwise, render a message encouraging the user to log a game
+    const renderStatsIfGames = () => {
+      if (userGames.length > 0) {
+        return (
+            <>
 
-    // useEffect for interstitial ads
-    // useEffect(() => {
-    //   const unsubscribeInterstitialEvents = loadInterstitial();
-  
-    //   return () => {
-    //     unsubscribeInterstitialEvents();
-    //   };
-    // }, [])
+              {/* Option to switch between all time and weekly */}
+              <View style={styles.timePeriodSwitchContainer}>
+                  <TouchableOpacity style={timeButtonCorrectRender(3)} onPress={()=>{updateNumGames(3)}}>
+                      <Text style={styles.timePeriodSwitchButtonText}>Last 3</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={timeButtonCorrectRender(6)} onPress={()=>{updateNumGames(6)}}>
+                      <Text style={styles.timePeriodSwitchButtonText}>Last 6</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={timeButtonCorrectRender('all')} onPress={()=>{updateNumGames('all')}}>
+                      <Text style={styles.timePeriodSwitchButtonText}>All games</Text>
+                  </TouchableOpacity>
+              </View>
+
+              <Text style={styles.statsSectionHeaderText}>Basic Stats</Text>
+              <View style={styles.basicStatsContainer}>
+                  <View style={styles.statsContainerBox}>
+                      <Text style={styles.statsContainerBoxNumber}>{userGameData['average']}</Text>
+                      <Text style={styles.statsContainerBoxDesc}>Average{doRenderGlobalScores('avgGameScore')}</Text>
+                  </View>
+                  <View style={styles.statsContainerBox}>
+                      <Text style={styles.statsContainerBoxNumber}>{userGameData['median']}</Text>
+                      <Text style={styles.statsContainerBoxDesc}>Median</Text>
+                  </View>
+                  <View style={styles.statsContainerBox}>
+                      <Text style={styles.statsContainerBoxNumber}>{userGameData['highScore']}</Text>
+                      <Text style={styles.statsContainerBoxDesc}>High Score</Text>
+                  </View>
+              </View>
+
+              <Text style={styles.statsSectionHeaderText}>Strikes, Spares, & Opens</Text>
+              <View style={styles.strikesSparesStatsContainer}>
+                  <View style={styles.statsContainerBox}>
+                      <Text style={styles.statsContainerBoxNumber}>{userGameData['avgStrikesPerGame']}</Text>
+                      <Text style={styles.statsContainerBoxDesc}>Avg. Strikes/Game{doRenderGlobalScores('avgStrikesPerGame')}</Text>
+                  </View>
+                  <View style={styles.statsContainerBox}>
+                      <Text style={styles.statsContainerBoxNumber}>{userGameData['avgSparesPerGame']}</Text>
+                      <Text style={styles.statsContainerBoxDesc}>Avg. Spares/Game{doRenderGlobalScores('avgSparesPerGame')}</Text>
+                  </View>
+                  <View style={styles.statsContainerBox}>
+                      <Text style={styles.statsContainerBoxNumber}>{userGameData['avgOpensPerGame']}</Text>
+                      <Text style={styles.statsContainerBoxDesc}>Avg. Opens/Game{doRenderGlobalScores('avgOpensPerGame')}</Text>
+                  </View>
+                  <View style={styles.statsContainerBox}>
+                      <Text style={styles.statsContainerBoxNumber}>{userGameData['avgSpareConvertPercent']}</Text>
+                      <Text style={styles.statsContainerBoxDesc}>Spare Conversion{doRenderGlobalScores('avgSpareConvertPercent')}</Text>
+                  </View>
+                  <View style={styles.statsContainerBox}>
+                      <Text style={styles.statsContainerBoxNumber}>{userGameData['avgFirstBallPinfall']}</Text>
+                      <Text style={styles.statsContainerBoxDesc}>Avg. 1st Ball Pinfall{doRenderGlobalScores('avgFirstBallPinfall')}</Text>
+                  </View>
+                  <View style={styles.statsContainerBox}>
+                      <Text style={styles.statsContainerBoxNumber}>{userGameData['avgOnePinConvertPercent']}</Text>
+                      <Text style={styles.statsContainerBoxDesc}>Single Pin Convert %{doRenderGlobalScores('avgOnePinConvertPercent')}</Text>
+                  </View>
+              </View>
+            </>
+        )
+      } else {
+        return (
+          <View style={styles.noGamesContainer}>
+            <Text style={styles.noGamesHeader}>Save a new game to start seeing statistics about your bowling games</Text>
+            <TouchableOpacity style={styles.noGameNewGameButton} onPress={()=>{navigateToEnterScore()}}>
+              <Text style={styles.timePeriodSwitchButtonText}>New Game</Text>
+            </TouchableOpacity>
+          </View>
+        )
+      }
+    }
 
   return (
     <View style={styles.container}>
         {/* Main Content Container */}
         <ScrollView style={styles.contentContainer}>
             <Text style={styles.headerText}>SpareStatistics</Text>
-            <Text style={styles.versionText}>Alpha 1.0.10</Text>
-
-            {/* Option to switch between all time and weekly */}
-            <View style={styles.timePeriodSwitchContainer}>
-                <TouchableOpacity style={timeButtonCorrectRender(3)} onPress={()=>{updateNumGames(3)}}>
-                    <Text style={styles.timePeriodSwitchButtonText}>Last 3</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={timeButtonCorrectRender(6)} onPress={()=>{updateNumGames(6)}}>
-                    <Text style={styles.timePeriodSwitchButtonText}>Last 6</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={timeButtonCorrectRender('all')} onPress={()=>{updateNumGames('all')}}>
-                    <Text style={styles.timePeriodSwitchButtonText}>All games</Text>
-                </TouchableOpacity>
-            </View>
+            <Text style={styles.versionText}>Beta 1.2.5</Text>
 
             {doRenderGlobalScoreDescription()}
 
-            {/* Basic Stats */}
-            <Text style={styles.statsSectionHeaderText}>Basic Stats</Text>
-            <View style={styles.basicStatsContainer}>
-                <View style={styles.statsContainerBox}>
-                    <Text style={styles.statsContainerBoxNumber}>{userGameData['average']}</Text>
-                    <Text style={styles.statsContainerBoxDesc}>Average{doRenderGlobalScores('avgGameScore')}</Text>
-                </View>
-                <View style={styles.statsContainerBox}>
-                    <Text style={styles.statsContainerBoxNumber}>{userGameData['median']}</Text>
-                    <Text style={styles.statsContainerBoxDesc}>Median</Text>
-                </View>
-                <View style={styles.statsContainerBox}>
-                    <Text style={styles.statsContainerBoxNumber}>{userGameData['highScore']}</Text>
-                    <Text style={styles.statsContainerBoxDesc}>High Score</Text>
-                </View>
-            </View>
-
-            {/* Strikes, Spares and Opens */}
-            <Text style={styles.statsSectionHeaderText}>Strikes, Spares, & Opens</Text>
-            <View style={styles.strikesSparesStatsContainer}>
-                <View style={styles.statsContainerBox}>
-                    <Text style={styles.statsContainerBoxNumber}>{userGameData['avgStrikesPerGame']}</Text>
-                    <Text style={styles.statsContainerBoxDesc}>Avg. Strikes/Game{doRenderGlobalScores('avgStrikesPerGame')}</Text>
-                </View>
-                <View style={styles.statsContainerBox}>
-                    <Text style={styles.statsContainerBoxNumber}>{userGameData['avgSparesPerGame']}</Text>
-                    <Text style={styles.statsContainerBoxDesc}>Avg. Spares/Game{doRenderGlobalScores('avgSparesPerGame')}</Text>
-                </View>
-                <View style={styles.statsContainerBox}>
-                    <Text style={styles.statsContainerBoxNumber}>{userGameData['avgOpensPerGame']}</Text>
-                    <Text style={styles.statsContainerBoxDesc}>Avg. Opens/Game{doRenderGlobalScores('avgOpensPerGame')}</Text>
-                </View>
-                <View style={styles.statsContainerBox}>
-                    <Text style={styles.statsContainerBoxNumber}>{userGameData['avgSpareConvertPercent']}</Text>
-                    <Text style={styles.statsContainerBoxDesc}>Spare Conversion{doRenderGlobalScores('avgSpareConvertPercent')}</Text>
-                </View>
-                <View style={styles.statsContainerBox}>
-                    <Text style={styles.statsContainerBoxNumber}>{userGameData['avgFirstBallPinfall']}</Text>
-                    <Text style={styles.statsContainerBoxDesc}>Avg. 1st Ball Pinfall{doRenderGlobalScores('avgFirstBallPinfall')}</Text>
-                </View>
-                <View style={styles.statsContainerBox}>
-                    <Text style={styles.statsContainerBoxNumber}>{userGameData['avgOnePinConvertPercent']}</Text>
-                    <Text style={styles.statsContainerBoxDesc}>Single Pin Convert %{doRenderGlobalScores('avgOnePinConvertPercent')}</Text>
-                </View>
-            </View>
+            {renderStatsIfGames()}
 
             {/* Custom Statistics */}
             {/* <TouchableOpacity style={styles.customStatsButton} onPress={()=>{navigate('CustomStats')}}>
@@ -491,6 +524,45 @@ const styles = StyleSheet.create({
     height:40,
     backgroundColor:'#353666',
     borderRadius:10,
+
+    // Align text in the center of the button
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  noGamesContainer: {
+    marginTop:10,
+    padding:5,
+    width:'100%',
+    backgroundColor:'#353666',
+    borderRadius:10,
+
+    // Align the boxes in the center
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection:'row',
+    flexWrap: 'wrap',
+  },
+
+  noGamesHeader: {
+    marginTop: 20,
+    padding: 10,
+    fontSize:15,
+    fontFamily: heavyFont,
+    color: 'white',
+    textAlign:'center'
+  },
+
+  noGameNewGameButton: {
+    margin:5,
+    marginBottom:10,
+
+    width:'50%',
+    height:40,
+    backgroundColor:'#353666',
+    borderRadius:10,
+    borderWidth: 1,
+    borderColor: 'white',
 
     // Align text in the center of the button
     alignItems: 'center',

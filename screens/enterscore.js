@@ -6,6 +6,7 @@ import { useState, useRef, useEffect } from 'react';
 import { getScore, getNumSpares, getNumStrikes, getNumOpens, getAvgFirstBallPinfall, getSpareConvertPercent, getOnePinConvertPercent, getAvgScoreDifference, getBestFrame, getWorstFrame, verifyTenthFrame } from './statsUtility';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 // import * as ImagePicker from 'expo-image-picker'
+import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid'
 
 export default function EnterScorePage({ navigation, route }) {
@@ -440,9 +441,9 @@ export default function EnterScorePage({ navigation, route }) {
 
             {/* Describe the scorecard */}
             <Text style={styles.headerText}>Enter a Score</Text>
-            <TouchableOpacity style={renderCorrectUploadButton()} onPress={() => pickImage()}>
+            {/* <TouchableOpacity style={renderCorrectUploadButton()} onPress={() => pickImage()}>
               <Text style={styles.submitButtonText}>{renderCorrectUploadText()}</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
             <Scorecard symbols={symbols} scores={scores} highlightedFrame={currentFrame}></Scorecard>
 

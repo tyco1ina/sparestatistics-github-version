@@ -16,12 +16,13 @@ import SettingsPage from './screens/settings'
 import EnterScorePage from './screens/enterscore';
 import GamePage from './screens/game';
 import AuthPage from './screens/auth';
+import Purchases from 'react-native-purchases';
 
 const Stack = createNativeStackNavigator();
 
 function App() {
 
-  const [user, setUser] = useState(undefined)
+  const [user, setUser] = useState(true)
 
   const checkUser = async () => {
     try {
@@ -137,4 +138,4 @@ const customTheme = {
 	},
 }
 
-export default withAuthenticator(App, {signUpConfig, theme: customTheme});
+export default App;
