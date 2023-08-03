@@ -94,11 +94,6 @@ export default function StatsPage({ navigation }) {
 
     // Navigates to the correct page
     const navigate = (loc) => {
-        // if (loc === "Capture") {
-        //   if (plan !== "premium") {
-        //     interstitial.show()
-        //   }
-        // }
 
         if (loc === "EnterScore") {
           navigation.navigate('EnterScore', {
@@ -158,31 +153,6 @@ export default function StatsPage({ navigation }) {
       } else {
         return ""
       }
-    }
-
-    // Function to load the interstitial ad
-    const loadInterstitial = () => {
-      // const unsubscribeLoaded = interstitial.addAdEventListener(
-      //   AdEventType.LOADED,
-      //   () => {
-      //     setInterstitialLoaded(true);
-      //   }
-      // );
-  
-      // const unsubscribeClosed = interstitial.addAdEventListener(
-      //   AdEventType.CLOSED,
-      //   () => {
-      //     setInterstitialLoaded(false);
-      //     interstitial.load();
-      //   }
-      // );
-  
-      // interstitial.load();
-  
-      // return () => {
-      //   unsubscribeClosed();
-      //   unsubscribeLoaded();
-      // }
     }
 
     // Check if the user has paid for pro

@@ -1,4 +1,4 @@
-import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View, ScrollView, Alert} from 'react-native';
+import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View, ScrollView, Alert, Linking } from 'react-native';
 import { useState, useRef, useEffect } from 'react';
 import { Button } from 'react-native'
 import { API, Auth } from 'aws-amplify';
@@ -117,6 +117,19 @@ export default function SettingsPage({ navigation }) {
       checkUserSubscription()
     }, [])
 
+    const openURL = async (url) => {
+      try {
+        const supported = await Linking.canOpenURL(url);
+        if (supported) {
+          await Linking.openURL(url);
+        } else {
+          console.log("Can't open URL:", url);
+        }
+      } catch (error) {
+        console.error("Error while opening URL:", error);
+      }
+    }
+
     const signOut = () => {
       Auth.signOut()
     }
@@ -154,7 +167,12 @@ export default function SettingsPage({ navigation }) {
                 <TouchableOpacity style={styles.signOutButton} onPress={restorePurchase}>
                     <Text style={styles.signOutButtonText}>Restore Purchase</Text>
                 </TouchableOpacity>
-
+                <TouchableOpacity style={styles.signOutButton} onPress={()=>openURL('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/')}>
+                    <Text style={styles.signOutButtonText}>Terms of Use</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.signOutButton} onPress={()=>openURL('https://www.privacypolicies.com/live/e2cfc699-928a-44cc-adf6-9a77a6b79361')}>
+                    <Text style={styles.signOutButtonText}>Privacy Policy</Text>
+                </TouchableOpacity>
           </ScrollView>
         </View>
       );
