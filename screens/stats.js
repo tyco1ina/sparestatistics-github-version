@@ -32,6 +32,26 @@ export default function StatsPage({ navigation }) {
     const [interstitialLoaded, setInterstitialLoaded] = useState(false)
     const [plan, setPlan] = useState('basic')
 
+    /*
+    The next two methods are navigation methods
+    */
+    const navigateToEnterScore = () => {
+      navigation.navigate('EnterScore', {
+          symbolsSubmitted: "manual"
+      })
+    }
+
+    // Navigates to the correct page
+    const navigate = (loc) => {
+
+        if (loc === "EnterScore") {
+          navigation.navigate('EnterScore', {
+            symbolsSubmitted: "manual"
+          })
+        }
+        navigation.navigate(loc)
+    }
+
     const fetchData = async () => {
       const resp = await fetch("https://8l5amkvz24.execute-api.us-east-1.amazonaws.com/prod/get-all-game-data")
       const data = await resp.json()
@@ -47,6 +67,11 @@ export default function StatsPage({ navigation }) {
       }
     }
 
+    /*
+    Function to calculate the game statistics shown on the screen
+    Input: Number of games to show
+    Output: Nothing
+    */
     const calculateGameStats = async (numGamesSetting) => {
 
       try {
@@ -84,23 +109,6 @@ export default function StatsPage({ navigation }) {
       let gameStats = await calculateGameStats(games)
       setNumGames(games)
       setUserGameData(gameStats)
-    }
-
-    const navigateToEnterScore = () => {
-      navigation.navigate('EnterScore', {
-          symbolsSubmitted: "manual"
-      })
-  }
-
-    // Navigates to the correct page
-    const navigate = (loc) => {
-
-        if (loc === "EnterScore") {
-          navigation.navigate('EnterScore', {
-            symbolsSubmitted: "manual"
-          })
-        }
-        navigation.navigate(loc)
     }
 
     // Renders the correct color for the number of games buttons at the top
@@ -158,11 +166,13 @@ export default function StatsPage({ navigation }) {
     // Check if the user has paid for pro
     const checkUserSubscription = async () => {
 
+      // Configure the Purchases object
       await Purchases.configure({apiKey: API_KEY})
 
+      // Get the customer info
       const purchaserInfo = await Purchases.getCustomerInfo()
-      console.log(purchaserInfo)
-      console.log(purchaserInfo.entitlements.active[ENTITLEMENT_ID])
+
+      // If the user is subscribed, set the subscription state to pro
       if (typeof purchaserInfo.entitlements.active[ENTITLEMENT_ID] !== "undefined") {
         setPlan('pro')
       } else {
@@ -185,10 +195,16 @@ export default function StatsPage({ navigation }) {
       calculateGameStats(numGames);
     }, []);
 
+    // This block of code runs whenever the user navigates to this page
     useFocusEffect(
       React.useCallback(() => {
+        // Calculate gameStats
         let gameStats = calculateGameStats(numGames);
+        
+        // Set user game data to game stats calculated on the previous line
         setUserGameData(gameStats)
+
+        // Check if the user has subscribed
         checkUserSubscription()
       }, [])
     );
@@ -280,11 +296,6 @@ export default function StatsPage({ navigation }) {
             {doRenderGlobalScoreDescription()}
 
             {renderStatsIfGames()}
-
-            {/* Custom Statistics */}
-            {/* <TouchableOpacity style={styles.customStatsButton} onPress={()=>{navigate('CustomStats')}}>
-                <Text style={styles.timePeriodSwitchButtonText}>Custom</Text>
-            </TouchableOpacity> */}
 
             
 
