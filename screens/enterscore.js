@@ -339,9 +339,6 @@ export default function EnterScorePage({ navigation, route }) {
       }
     }
     
-
-  console.log(`Rendering with ${symbols}`)
-
   return (
     
     <View style={styles.container}>

@@ -5,6 +5,7 @@ import { API, Auth } from 'aws-amplify';
 import Purchases from 'react-native-purchases';
 import { API_KEY } from '../constants';
 import { launchImageLibrary } from 'react-native-image-picker';
+import { ENTITLEMENT_ID } from '../constants';
 
 export default function EnterScoreSelectPage({ navigation }) {
 
@@ -31,6 +32,17 @@ export default function EnterScoreSelectPage({ navigation }) {
           setHasGalleryPermissions(galleryStatus.status === 'granted')
         })
       })
+
+    const goToEnterScoreWithManual = () => {
+
+        if (uploadingImage) {
+            return
+        }
+
+        navigation.navigate("EnterScore", {
+            symbolsSubmitted: "manual"
+        })
+    }
   
       const pickImage = async () => {
   
@@ -43,7 +55,17 @@ export default function EnterScoreSelectPage({ navigation }) {
         };
   
         launchImageLibrary(options, response => {
-          if (response['assets'][0]['uri']) {
+        //   if (response['assets'][0]['uri']) {
+        //     // Handle the selected image here
+        //     console.log('Selected image URI:', response['assets'][0]['uri']);
+        //     uploadImage(response['assets'][0]['uri'])
+        //   }
+
+          if (response.didCancel) {
+            console.log('User cancelled image picker');
+          } else if (response.error) {
+            console.log('ImagePicker Error: ', response.error);
+          } else if (response['assets'][0]['uri']) {
             // Handle the selected image here
             console.log('Selected image URI:', response['assets'][0]['uri']);
             uploadImage(response['assets'][0]['uri'])
@@ -128,10 +150,15 @@ export default function EnterScoreSelectPage({ navigation }) {
       checkUserSubscription()
     }, [])
 
-    
-
-    const signOut = () => {
-      Auth.signOut()
+    const renderCorrectUploadButton = () => {
+        if (uploadingImage) {
+            return {
+                ...styles.methodButton,
+                backgroundColor:'#28284dff',
+            }
+        } else {
+            return styles.methodButton
+        }
     }
 
     return (
@@ -139,13 +166,11 @@ export default function EnterScoreSelectPage({ navigation }) {
             <ScrollView style={styles.contentContainer}>
                 <Text style={styles.headerText}>Choose a Method</Text>
 
-                <TouchableOpacity style={styles.methodButton} onPress={pickImage}>
-                    <Text style={styles.methodText}>Image Upload</Text>
+                <TouchableOpacity style={renderCorrectUploadButton()} onPress={pickImage}>
+                    <Text style={styles.methodText}>{uploadingImage ? "Loading..." : "Image Upload"}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.methodButton} onPress={()=>{
-                    navigation.navigate("EnterScore", {
-                        symbolsSubmitted: "manual"
-                    })
+                    goToEnterScoreWithManual()
                 }}>
                     <Text style={styles.methodText}>Manual</Text>
                 </TouchableOpacity>
@@ -192,7 +217,7 @@ const styles = StyleSheet.create({
         font: font,
 
         color:'white',
-        fontSize:30,
+        fontSize:25,
       },
 
       planSectionHeaderText: {
