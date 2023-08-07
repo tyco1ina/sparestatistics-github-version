@@ -429,10 +429,6 @@ export default function EnterScorePage({ navigation, route }) {
               if (symbolsLists.length === 1) {
                 setSymbols(symbolsLists[0])
                 setScores(handleScoresList(symbolsLists[0]))
-              } else {
-                navigation.navigate('SelectGame', {
-                  symbolsLists: symbolsLists
-                })
               }
 
               setUploadingImage(false)
@@ -458,11 +454,6 @@ export default function EnterScorePage({ navigation, route }) {
             <TouchableOpacity style={renderCorrectUploadButton()} onPress={() => pickImage()}>
               <Text style={styles.submitButtonText}>{renderCorrectUploadText()}</Text>
             </TouchableOpacity>
-
-            <Text style={styles.directionsText}>In the white box:</Text>
-            <Text style={styles.directionsText}>- Enter a strike as an 'X'</Text>
-            <Text style={styles.directionsText}>- Enter spares as a number with a slash. Ex: '9/'</Text>
-            <Text style={styles.directionsText}>- Enter open frames as two numbers. Ex: '36'</Text>
 
             <Scorecard symbols={symbols} scores={scores} highlightedFrame={currentFrame}></Scorecard>
 
@@ -732,11 +723,6 @@ const styles = StyleSheet.create({
         alignSelf:'center',
         color:'white',
         fontFamily: heavyFont
-      },
-      directionsText: {
-        marginLeft:2,
-        color:'white',
-        fontFamily: font,
-      },
+      }
     }
 )
