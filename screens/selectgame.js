@@ -7,6 +7,68 @@ export default function SelectGamePage({ navigation, route }) {
 
     const { symbolsLists } = route.params;
 
+    const handleScoresList = (symbolsToConvert) => {
+      // Convert the symbols to a list of numbers
+      let combinedSymbols = symbolsToConvert.join()
+      combinedSymbols = combinedSymbols.replace(/,/g, "")
+
+      let rollsList = []
+      for (let i = 0; i < combinedSymbols.length; i++) {
+          if (combinedSymbols[i] == "X") {
+              rollsList.push(10)
+          } else if (combinedSymbols[i] == "-") {
+              rollsList.push(0)
+          } else if (combinedSymbols[i] == "/") {
+              rollsList.push(10 - rollsList[i-1])
+          } else {
+              rollsList.push(parseInt(combinedSymbols[i]))
+          }
+      }
+
+      let scoreList = []
+      let cumilativeScore = 0
+      let currentFrame = 0
+      let currentRoll = 0
+      while (scoreList.length <= 8) {
+          if (rollsList[currentRoll] == 10) { // It's a strike
+              cumilativeScore = cumilativeScore + 10
+              cumilativeScore = cumilativeScore + rollsList[currentRoll + 1] + rollsList[currentRoll + 2]
+              scoreList.push(cumilativeScore)
+              currentRoll++
+          } else {
+              cumilativeScore = cumilativeScore + rollsList[currentRoll]
+              currentRoll++
+              if (rollsList[currentRoll] + rollsList[currentRoll - 1] == 10) { // Its a spare
+                  cumilativeScore = cumilativeScore + rollsList[currentRoll]
+                  cumilativeScore = cumilativeScore + rollsList[currentRoll + 1]
+                  scoreList.push(cumilativeScore)
+                  currentRoll++
+              } else {
+                  cumilativeScore = cumilativeScore + rollsList[currentRoll]
+                  scoreList.push(cumilativeScore)
+                  currentRoll++
+              }
+          }
+      }
+
+      // 10th frame
+      for (let i = currentRoll; i < rollsList.length; i++) {
+          cumilativeScore = cumilativeScore + rollsList[i]
+      }
+      scoreList.push(cumilativeScore)
+
+      return scoreList
+    }
+
+    const selectGame = (symbolsList) => {
+      console.log("selecting game")
+      console.log(symbolsList)
+      console.log(typeof symbolsList)
+      navigation.navigate('EnterScore', {
+        symbolsSubmitted: JSON.stringify(symbolsList)
+    })
+    }
+
     return (
         <View style={styles.container}>
           {/* Main Content Container */}
@@ -18,8 +80,9 @@ export default function SelectGamePage({ navigation, route }) {
                   <Scorecard 
                     key={index}
                     symbols={symbolsLists[index]}
-                    scores={['','','','','','','','','','']}
+                    scores={handleScoresList(symbolsLists[index])}
                     highlightedFrame={0}
+                    onPress={()=>selectGame(symbolsLists[index])}
                   ></Scorecard>
                 ))}
           </ScrollView>
