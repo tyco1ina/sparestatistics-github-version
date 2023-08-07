@@ -3,11 +3,11 @@ import { useEffect, useState } from 'react'
 import { View, Text, Button, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Amplify, Auth } from 'aws-amplify'
-import {withAuthenticator, AmplifyTheme } from 'aws-amplify-react-native'
-import config from './src/aws-exports'
+//import { Amplify, Auth } from 'aws-amplify'
+//import {withAuthenticator, AmplifyTheme } from 'aws-amplify-react-native'
+//import config from './src/aws-exports'
 
-Amplify.configure(config)
+//Amplify.configure(config)
 
 import StatsPage from './screens/stats';
 import GamesPage from './screens/games';
@@ -106,7 +106,7 @@ const signUpConfig = {
   ]
 }
 
-const customTheme = {
+/*const customTheme = {
   ...AmplifyTheme,
   button: {
 		backgroundColor:'#353666',
@@ -136,6 +136,6 @@ const customTheme = {
 		alignItems: 'baseline',
 		textAlign: 'center',
 	},
-}
+}*/
 
 export default App;

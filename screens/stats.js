@@ -26,11 +26,14 @@ export default function StatsPage({ navigation }) {
       "avgOpensPerGame": "N/A",
       "avgSpareConvertPercent": "N/A",
       "avgFirstBallPinfall": "N/A",
-      "avgOnePinConvertPercent": "N/A"
+      "avgOnePinConvertPercent": "N/A",
+      "avgBestFrame": "N/A",
+      "avgWorstFrame" : "N/A",
+      "avgScoreDiff": "N/A"
     })
     const [userGames, setUserGames] = useState([])
     const [interstitialLoaded, setInterstitialLoaded] = useState(false)
-    const [plan, setPlan] = useState('basic')
+    const [plan, setPlan] = useState('pro')
 
     /*
     The next two methods are navigation methods
@@ -94,6 +97,9 @@ export default function StatsPage({ navigation }) {
           userGameDataTemp['avgFirstBallPinfall'] = calcAvgMetric(games, 'avgFirstBallPinfall', numGamesSetting)
           userGameDataTemp['avgOnePinConvertPercent'] = calcAvgMetric(games, 'onePinConvertPercent', numGamesSetting)
 
+          userGameDataTemp['avgBestFrame'] = calcAvgMetric(games, 'bestFrame', numGamesSetting)
+          userGameDataTemp['avgWorstFrame'] = calcAvgMetric(games, 'worstFrame', numGamesSetting)
+          userGameDataTemp['avgScoreDiff'] = calcAvgMetric(games, 'avgScoreDifference', numGamesSetting)
 
           setUserGameData(userGameDataTemp)
           return userGameDataTemp
@@ -176,7 +182,7 @@ export default function StatsPage({ navigation }) {
       if (typeof purchaserInfo.entitlements.active[ENTITLEMENT_ID] !== "undefined") {
         setPlan('pro')
       } else {
-        setPlan('basic')
+        setPlan('pro')
       }
     }
 
@@ -208,6 +214,35 @@ export default function StatsPage({ navigation }) {
         checkUserSubscription()
       }, [])
     );
+
+    const paidStats = () => {
+      if (plan == 'pro') {
+        return (
+          <View>
+            <Text style={styles.statsSectionHeaderText}>Pro Stats</Text>
+            <View style={styles.basicStatsContainer}>
+                <View style={styles.statsContainerBox}>
+                    <Text style={styles.statsContainerBoxNumber}>{userGameData['avgBestFrame']}</Text>
+                    <Text style={styles.statsContainerBoxDesc}>Average Best Frame</Text>
+                </View>
+                <View style={styles.statsContainerBox}>
+                    <Text style={styles.statsContainerBoxNumber}>{userGameData['avgWorstFrame']}</Text>
+                    <Text style={styles.statsContainerBoxDesc}>Average Worst Frame</Text>
+                </View>
+                <View style={styles.statsContainerBox}>
+                    <Text style={styles.statsContainerBoxNumber}>{userGameData['avgScoreDiff']}</Text>
+                    <Text style={styles.statsContainerBoxDesc}>Average Score Difference</Text>
+                </View>
+            </View>
+          </View>
+          
+        )
+      } else {
+        return(
+          <View/>
+        )
+      }
+    }
 
     // Render the statistics if the user has games
     // Otherwise, render a message encouraging the user to log a game
@@ -272,6 +307,8 @@ export default function StatsPage({ navigation }) {
                       <Text style={styles.statsContainerBoxDesc}>Single Pin Convert %{doRenderGlobalScores('avgOnePinConvertPercent')}</Text>
                   </View>
               </View>
+
+              {paidStats()}
             </>
         )
       } else {
