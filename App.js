@@ -17,6 +17,7 @@ import EnterScorePage from './screens/enterscore';
 import GamePage from './screens/game';
 import AuthPage from './screens/auth';
 import Purchases from 'react-native-purchases';
+import SelectGamePage from './screens/selectgame';
 
 const Stack = createNativeStackNavigator();
 
@@ -71,6 +72,7 @@ function App() {
             {/* <Stack.Screen name="Capture" component={CapturePage} /> */}
             <Stack.Screen name="EnterScore" component={EnterScorePage} />
             <Stack.Screen name="Game" component={GamePage} />
+            <Stack.Screen name="SelectGame" component={SelectGamePage} />
           </>
         )}
       </Stack.Navigator>

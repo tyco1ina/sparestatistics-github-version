@@ -112,6 +112,7 @@ export default function EnterScorePage({ navigation, route }) {
     const handleSymbolChangeSubmit = (strike) => {
       let newSymbols = []
       let inputValue = currentFrameSymbolInput;
+      inputValue = inputValue.replace(/0/g, '-');
 
       for (let i = 0; i < symbols.length; i++) {
         if (i === currentFrame - 1) {
@@ -310,6 +311,7 @@ export default function EnterScorePage({ navigation, route }) {
       if (!submittingGame) {
         return {
           marginTop: 20,
+          marginBottom: 20,
           alignSelf:'center',
           backgroundColor:'#353666',
           height:50,
@@ -320,6 +322,7 @@ export default function EnterScorePage({ navigation, route }) {
       } else {
         return {
           marginTop: 20,
+          marginBottom: 20,
           alignSelf:'center',
           backgroundColor:'#28284dff',
           height:50,
@@ -369,42 +372,68 @@ export default function EnterScorePage({ navigation, route }) {
       }
     }
 
-    useEffect(() => {
-      (async () => {
-        const galleryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync()
-        setHasGalleryPermissions(galleryStatus.status === 'granted')
-      })
-    })
+    // useEffect(() => {
+    //   (async () => {
+    //     const galleryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync()
+    //     setHasGalleryPermissions(galleryStatus.status === 'granted')
+    //   })
+    // })
 
+    /*
+    Pick an image from the Photos app and upload it
+    */
     const pickImage = async () => {
 
       if (uploadingImage) {
         return
       }
 
+      setUploadingImage(true)
+      
       const options = {
-        mediaType: 'photo',
+        title: 'Select Image',
+        storageOptions: {
+          skipBackup: true,
+          path: 'images',
+        },
       };
 
-      launchImageLibrary(options, response => {
-        if (response['assets'][0]['uri']) {
-          // Handle the selected image here
-          console.log('Selected image URI:', response['assets'][0]['uri']);
-          uploadImage(response['assets'][0]['uri'])
+      console.log("About to upload image")
+  
+      launchImageLibrary(options, (response) => {
+        console.log(response)
+        if (response.didCancel) {
+          console.log('User cancelled image picker');
+          setUploadingImage(false)
+        } else if (response.error) {
+          console.log('ImagePicker Error: ', response.error);
+          setUploadingImage(false)
+        } else if (response['assets'][0]['uri']) {
+          console.log("there is a uri")
+          // The selected image URI can be used directly, or you can use it to display the image using the Image component
+          uploadImage(response['assets'][0]['uri']);
+          setUploadingImage(false)
         }
       });
-      
+
+      setUploadingImage(false)
     }
 
+    /*
+    Uploads the image to the backend which reads the image
+    */
     const uploadImage = async (imageUri) => {
       const url = 'https://8l5amkvz24.execute-api.us-east-1.amazonaws.com/prod/sparestatistics-full-image-uploader';
       const response = await fetch(imageUri)
       const imgBlob = await response.blob()
+      console.log("Got here 0")
+      console.log(imageUri)
 
+      console.log("Got here 1")
       try {
-
+        console.log("Got here 2")
           setUploadingImage(true)
-          console.log("making response")
+          console.log("Making request")
           const response = await fetch(url, {
               method: 'POST',
               headers: {
@@ -412,26 +441,41 @@ export default function EnterScorePage({ navigation, route }) {
               }, 
               body: imgBlob
           })
-
-          console.log("finished response")
+          console.log("Made request")
 
           if (response.status === 200) {
+              console.log("Response was 200")
               console.log(response)
               const result = await response.text();
-              console.log(result);
 
               if (result === "Reading scorecard was unsuccessful") {
                   setUploadingImage(false)
                   return
               }
 
-              const symbolsLists = JSON.parse(result)
-              if (symbolsLists.length === 1) {
-                setSymbols(symbolsLists[0])
-                setScores(handleScoresList(symbolsLists[0]))
+              const returnList = JSON.parse(result)
+              console.log("Return list")
+              console.log(returnList)
+              for (let i = 0; i < returnList.length; i++) {
+                while (returnList[i].length < 10) {
+                  returnList.push("")
+                }
+              }
+
+              if (returnList.length === 1) {
+                setSymbols(returnList)
+                setScores(handleScoresList(returnList))
               } else {
+                let scoresLists = []
+                for (let i = 0; i < returnList.length; i++) {
+                  scoresLists.push(handleScoresList(returnList[i]))
+                } 
+
+                console.log(scoresLists)
+
                 navigation.navigate('SelectGame', {
-                  symbolsLists: symbolsLists
+                  symbolsLists: returnList,
+                  scoresLists: scoresLists
                 })
               }
 
@@ -548,6 +592,12 @@ const styles = StyleSheet.create({
         color:'white',
         fontSize:30,
         fontFamily: heavyFont
+      },
+
+      directionsText: {
+        marginLeft:2,
+        color:'white',
+        fontFamily: font,
       },
 
       uploadImageButton: {
@@ -732,11 +782,6 @@ const styles = StyleSheet.create({
         alignSelf:'center',
         color:'white',
         fontFamily: heavyFont
-      },
-      directionsText: {
-        marginLeft:2,
-        color:'white',
-        fontFamily: font,
-      },
+      }
     }
 )
