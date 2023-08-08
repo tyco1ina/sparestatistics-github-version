@@ -2,6 +2,7 @@ import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View, ScrollView, Ale
 import { useState, useRef } from 'react';
 import Scorecard from '../components/Scorecard';
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { Icon } from '@rneui/themed';
 
 export default function GamePage({ navigation, route }) {
 
@@ -103,7 +104,9 @@ export default function GamePage({ navigation, route }) {
         <View style={styles.container}>
           {/* Main Content Container */}
           <ScrollView style={styles.contentContainer}>
-                <Text style={styles.headerText}>Your Game</Text>
+                <View style={styles.headerSection}>
+                  <Text style={styles.headerText}>Your Game</Text>
+                </View>
                 <Text style={styles.dateText}>on {gameToShow['date']}</Text>
                 <Scorecard 
                     symbols={gameToShow['symbolsList']}
@@ -122,6 +125,8 @@ export default function GamePage({ navigation, route }) {
                         <Text style={styles.statTitleText}>Opens</Text>
                         <Text style={styles.statTitleText}>Conversion %</Text>
                         <Text style={styles.statTitleText}>Single Pin Conversion %</Text>
+                        <Text style={styles.statTitleText}>Best Frame</Text>
+                        <Text style={styles.statTitleText}>Worst Frame</Text>
                     </View>
                     <View style={styles.statsContainerRight}>
                         <Text style={styles.statTitleText}>{gameToShow['score']}</Text>
@@ -131,7 +136,8 @@ export default function GamePage({ navigation, route }) {
                         <Text style={styles.statTitleText}>{gameToShow['opens']}</Text>
                         <Text style={styles.statTitleText}>{gameToShow['spareConvertPercent']}</Text>
                         <Text style={styles.statTitleText}>{gameToShow['onePinConvertPercent']}</Text>
-
+                        <Text style={styles.statTitleText}>{gameToShow['bestFrame']}</Text>
+                        <Text style={styles.statTitleText}>{gameToShow['worstFrame']}</Text>
                     </View>
                 </View>
 
@@ -163,7 +169,8 @@ const styles = StyleSheet.create({
       headerText: {
         color:'white',
         fontSize:30,
-        fontFamily: heavyFont
+        fontFamily: heavyFont,
+        justifyContent: "flex-start"
       },
 
       dateText: {
@@ -234,5 +241,9 @@ const styles = StyleSheet.create({
       deleteText: {
         color: 'white',
         fontFamily: font
+      },
+
+      headerSection: {
+        flexDirection: "row"
       }
 });

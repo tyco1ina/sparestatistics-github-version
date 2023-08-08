@@ -219,23 +219,22 @@ export default function StatsPage({ navigation }) {
       if (plan == 'pro') {
         return (
           <View>
-            <Text style={styles.statsSectionHeaderText}>Pro Stats</Text>
-            <View style={styles.basicStatsContainer}>
-                <View style={styles.statsContainerBox}>
-                    <Text style={styles.statsContainerBoxNumber}>{userGameData['avgBestFrame']}</Text>
-                    <Text style={styles.statsContainerBoxDesc}>Average Best Frame</Text>
+            <Text style={styles2.planSectionHeaderText}>Game Dynamics</Text>
+            <View style={styles2.statsContainer}>
+                <View style={styles2.statsContainerLeft}>
+                  <Text style={styles2.statTitleText}>Average First Ball Pinfall</Text>
+                    <Text style={styles2.statTitleText}>Average Frame Score Difference</Text>
+                    <Text style={styles2.statTitleText}>Average Best Frame</Text>
+                    <Text style={styles2.statTitleText}>Average Worst Frame</Text>
                 </View>
-                <View style={styles.statsContainerBox}>
-                    <Text style={styles.statsContainerBoxNumber}>{userGameData['avgWorstFrame']}</Text>
-                    <Text style={styles.statsContainerBoxDesc}>Average Worst Frame</Text>
-                </View>
-                <View style={styles.statsContainerBox}>
-                    <Text style={styles.statsContainerBoxNumber}>{userGameData['avgScoreDiff']}</Text>
-                    <Text style={styles.statsContainerBoxDesc}>Average Score Difference</Text>
+                <View style={styles2.statsContainerRight}>
+                    <Text style={styles2.statTitleText}>{userGameData['avgFirstBallPinfall']}</Text>
+                    <Text style={styles2.statTitleText}>{userGameData['avgScoreDiff']}</Text>
+                    <Text style={styles2.statTitleText}>{userGameData['avgBestFrame']}</Text>
+                    <Text style={styles2.statTitleText}>{userGameData['avgWorstFrame']}</Text>
                 </View>
             </View>
           </View>
-          
         )
       } else {
         return(
@@ -250,7 +249,7 @@ export default function StatsPage({ navigation }) {
       if (userGames.length > 0) {
         return (
             <>
-
+            
               {/* Option to switch between all time and weekly */}
               <View style={styles.timePeriodSwitchContainer}>
                   <TouchableOpacity style={timeButtonCorrectRender(3)} onPress={()=>{updateNumGames(3)}}>
@@ -264,6 +263,32 @@ export default function StatsPage({ navigation }) {
                   </TouchableOpacity>
               </View>
 
+              <Text style={styles2.planSectionHeaderText}>Essential Statistics</Text>
+              <View style={styles2.statsContainer}>
+                  <View style={styles2.statsContainerLeft}>
+                    <Text style={styles2.statTitleText}>Average Score</Text>
+                      <Text style={styles2.statTitleText}>Median</Text>
+                      <Text style={styles2.statTitleText}>High Score</Text>
+                      <Text style={styles2.statTitleText}>Avg. Strikes/Game</Text>
+                      <Text style={styles2.statTitleText}>Avg. Spares/Game</Text>
+                      <Text style={styles2.statTitleText}>Avg. Opens/Game</Text>
+                      <Text style={styles2.statTitleText}>Spare Conversion</Text>
+                      <Text style={styles2.statTitleText}>Single Pin Convert %</Text>
+                  </View>
+                  <View style={styles2.statsContainerRight}>
+                      <Text style={styles2.statTitleText}>{userGameData['average']}</Text>
+                      <Text style={styles2.statTitleText}>{userGameData['median']}</Text>
+                      <Text style={styles2.statTitleText}>{userGameData['highScore']}</Text>
+                      <Text style={styles2.statTitleText}>{userGameData['avgStrikesPerGame']}</Text>
+                      <Text style={styles2.statTitleText}>{userGameData['avgSparesPerGame']}</Text>
+                      <Text style={styles2.statTitleText}>{userGameData['avgOpensPerGame']}</Text>
+                      <Text style={styles2.statTitleText}>{userGameData['avgSpareConvertPercent']}</Text>
+                      <Text style={styles2.statTitleText}>{userGameData['avgOnePinConvertPercent']}</Text>
+                  </View>
+              </View>
+              {paidStats()}              
+
+              {/*
               <Text style={styles.statsSectionHeaderText}>Basic Stats</Text>
               <View style={styles.basicStatsContainer}>
                   <View style={styles.statsContainerBox}>
@@ -308,8 +333,8 @@ export default function StatsPage({ navigation }) {
                   </View>
               </View>
 
-              {paidStats()}
-            </>
+              {paidStats()} */}
+            </> 
         )
       } else {
         return (
@@ -586,4 +611,93 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   }
+});
+
+const styles2 = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#2a2b4c',
+        alignItems:'center'
+      },
+      contentContainer: {
+        // borderColor:'white', // use for spacial reasoning purposes
+        // borderWidth:'1px',
+        width:'90%',
+      },
+      
+      headerText: {
+        color:'white',
+        fontSize:30,
+        fontFamily: heavyFont
+      },
+
+      dateText: {
+        marginLeft:2,
+        color:'white',
+        fontSize:13,
+        fontFamily:font
+      },
+
+      planSectionHeaderText: {
+        marginTop:30,
+        marginLeft:5,
+        color:'white',
+        fontSize:20,
+        fontFamily: heavyFont
+      },
+
+      statsContainer: {
+        marginTop:4,
+        padding:5,
+        width:'100%',
+        backgroundColor:'#353666',
+        borderRadius:10,
+    
+        // Align the boxes in the center
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection:'row',
+        flexWrap: 'wrap',
+      },
+
+      statsContainerLeft: {
+        width:'70%',
+        padding:10,
+      },
+
+      statsContainerRight: {
+        width:'30%',
+        padding:10,
+        alignItems: 'flex-end',
+      },
+
+      statTitleText: {
+        color:'white',
+        fontSize:15,
+        fontFamily:font
+      },
+
+      buttonContainer: {
+        marginTop:10,
+
+        width:'100%',
+        height:10,
+        alignSelf:'center'
+      },
+
+      deleteButton: {
+        width: 200,
+        height:50,
+        backgroundColor:'#353666',
+        borderRadius:10,
+
+        alignSelf:'center',
+        alignItems:'center',
+        justifyContent:'center'
+      },
+
+      deleteText: {
+        color: 'white',
+        fontFamily: font
+      }
 });
