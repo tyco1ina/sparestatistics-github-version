@@ -128,9 +128,9 @@ export default function SettingsPage({ navigation, route }) {
                     </View>
                     <View style={styles.planContainerLower}>
                         {/* <Text style={styles.planDescText}>7 successful Strikezone captures per day </Text> */}
-                        <Text style={styles.proPlanDescText}>-Access in-depth statistics</Text>
-                        <Text style={styles.proPlanDescText}>-Compare your statistics to worldwide averages </Text>
-                        <Text style={styles.proPlanDescText}>-5 image uploads per day (maximum of 20)</Text>
+                        <Text style={styles.proPlanDescText}>- Access in-depth statistics</Text>
+                        <Text style={styles.proPlanDescText}>- Compare your statistics to worldwide averages </Text>
+                        <Text style={styles.proPlanDescText}>- 5 image uploads per day (maximum of 20)</Text>
                     </View>
                 </TouchableOpacity>
                 <Text style={styles.restartAppText}>*After purchasing SpareStatistics Pro, restart the app for the effects to take place</Text>
