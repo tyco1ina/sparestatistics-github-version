@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
       },
 
       methodText: {
-        font: font,
+        fontFamily: font,
 
         color:'white',
         fontSize:25,

@@ -8,14 +8,9 @@ import * as React from 'react';
 import Purchases from 'react-native-purchases';
 import { API_KEY, ENTITLEMENT_ID } from '../constants';
 
-// const interstitial = InterstitialAd.createForAdRequest(TestIds.INTERSTITIAL, {
-//   requestNonPersonalizedAdsOnly: true
-// })
-
 export default function StatsPage({ navigation }) {
   
     const [numGames, setNumGames] = useState(3)
-    const [loading, setLoading] = useState(true);
     const [globalGameData, setGlobalGameData] = useState([])
     const [userGameData, setUserGameData] = useState({
       "average": "N/A",
@@ -33,36 +28,22 @@ export default function StatsPage({ navigation }) {
     })
     const [userGames, setUserGames] = useState([])
     const [interstitialLoaded, setInterstitialLoaded] = useState(false)
-    const [plan, setPlan] = useState('pro')
-
-    /*
-    The next two methods are navigation methods
-    */
-    const navigateToEnterScore = () => {
-      navigation.navigate('EnterScore', {
-          symbolsSubmitted: "manual"
-      })
-    }
+    const [plan, setPlan] = useState('basic')
 
     // Navigates to the correct page
     const navigate = (loc) => {
-
-        if (loc === "EnterScore") {
-          navigation.navigate('EnterScore', {
-            symbolsSubmitted: "manual"
-          })
-        }
         navigation.navigate(loc)
     }
 
+    // Fetch global game data from the backend
     const fetchData = async () => {
       const resp = await fetch("https://8l5amkvz24.execute-api.us-east-1.amazonaws.com/prod/get-all-game-data")
       const data = await resp.json()
       setGlobalGameData(data)
     };
 
+    // If this is the first time the user is opening the app, save the necessary things in storage
     const initializeApp = async () => {
-      // If this is the first time the user is opening the app, save the necessary things in storage
       const firstTime = await AsyncStorage.getItem("firstTime2")
       if (firstTime === null) {
         AsyncStorage.setItem("firstTime2", "no")
@@ -121,30 +102,11 @@ export default function StatsPage({ navigation }) {
     const timeButtonCorrectRender = (button) => {
       if (button === numGames) {
           return {
-          margin:5,
-      
-          width:'30%',
-          height:40,
-          backgroundColor:'#36cfdf',
-          borderRadius:10,
-      
-          // Align text in the center of the button
-          alignItems: 'center',
-          justifyContent: 'center',
+            ...styles.timePeriodSwitchButton,
+            backgroundColor:'#36cfdf'
         }
       } else {
-        return {
-              margin:5,
-          
-              width:'30%',
-              height:40,
-              backgroundColor:'#353666',
-              borderRadius:10,
-          
-              // Align text in the center of the button
-              alignItems: 'center',
-              justifyContent: 'center',
-      }
+        return styles.timePeriodSwitchButton
       }
     }
 
@@ -182,7 +144,7 @@ export default function StatsPage({ navigation }) {
       if (typeof purchaserInfo.entitlements.active[ENTITLEMENT_ID] !== "undefined") {
         setPlan('pro')
       } else {
-        setPlan('pro')
+        setPlan('basic')
       }
     }
 
@@ -216,7 +178,7 @@ export default function StatsPage({ navigation }) {
     );
 
     const paidStats = () => {
-      if (plan == 'pro') {
+      if (plan === 'pro') {
         return (
           <View>
             <Text style={styles.statsSectionHeaderText}>Pro Stats</Text>
@@ -328,26 +290,25 @@ export default function StatsPage({ navigation }) {
         {/* Main Content Container */}
         <ScrollView style={styles.contentContainer}>
             <Text style={styles.headerText}>SpareStatistics</Text>
-            <Text style={styles.versionText}>Beta 1.2.5</Text>
+            <Text style={styles.versionText}>Beta 1.2.6</Text>
 
             {doRenderGlobalScoreDescription()}
 
-            {renderStatsIfGames()}
-
-            
+            {renderStatsIfGames()}    
 
         </ScrollView>
-      <View style={styles.statsPageFooter}>
-        <TouchableOpacity style={styles.footerButton} onPress={()=>navigation.navigate("EnterScoreSelect")}>
-            <Text style={styles.footerButtonText}>New Game</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.footerButton} onPress={()=>{navigate('Games')}}>
-            <Text style={styles.footerButtonText}>Games</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.footerButton} onPress={()=>{navigate('Settings')}}>
-            <Text style={styles.footerButtonText}>Settings</Text>
-        </TouchableOpacity>
-      </View>
+
+        <View style={styles.statsPageFooter}>
+          <TouchableOpacity style={styles.footerButton} onPress={()=>navigation.navigate("EnterScoreSelect")}>
+              <Text style={styles.footerButtonText}>New Game</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.footerButton} onPress={()=>{navigate('Games')}}>
+              <Text style={styles.footerButtonText}>Games</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.footerButton} onPress={()=>{navigate('Settings')}}>
+              <Text style={styles.footerButtonText}>Settings</Text>
+          </TouchableOpacity>
+        </View>
     </View>
   );
 }
