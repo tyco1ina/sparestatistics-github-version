@@ -44,10 +44,11 @@ export default function StatsPage({ navigation }) {
 
     // If this is the first time the user is opening the app, save the necessary things in storage
     const initializeApp = async () => {
-      const firstTime = await AsyncStorage.getItem("firstTime2")
+      const firstTime = await AsyncStorage.getItem("firstTime5")
       if (firstTime === null) {
-        AsyncStorage.setItem("firstTime2", "no")
+        AsyncStorage.setItem("firstTime5", "no")
         AsyncStorage.setItem("games", JSON.stringify([]))
+        AsyncStorage.setItem("uploadsRemaining", "5")
       }
     }
 
@@ -330,7 +331,11 @@ export default function StatsPage({ navigation }) {
           <TouchableOpacity style={styles.footerButton} onPress={()=>{navigate('Games')}}>
               <Text style={styles.footerButtonText}>Games</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.footerButton} onPress={()=>{navigate('Settings')}}>
+          <TouchableOpacity style={styles.footerButton} onPress={()=>{
+            navigation.navigate('Settings', {
+              attemptMakePurchase: false
+            })
+            }}>
               <Text style={styles.footerButtonText}>Settings</Text>
           </TouchableOpacity>
         </View>

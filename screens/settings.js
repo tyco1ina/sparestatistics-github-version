@@ -6,48 +6,12 @@ import Purchases from 'react-native-purchases';
 import { API_KEY } from '../constants';
 import { ENTITLEMENT_ID } from '../constants';
 
-export default function SettingsPage({ navigation }) {
+export default function SettingsPage({ navigation, route }) {
 
     const [currentPlan, setCurrentPlan] = useState("basic")
     const [packages, setPackages] = useState([])
     const [isPurchasing, setIsPurchasing] = useState(false)
     const [offerings, setOfferings] = useState(null)
-
-    const renderPlanHighlight = (plan) => {
-        if (plan === currentPlan) {
-            return {
-                marginTop:10,
-                height:140,
-                padding:5,
-                width:'100%',
-                backgroundColor:'#353666',
-                borderRadius:10,
-                borderWidth: 1,
-                borderColor: "#36cfdf",
-            
-                // Align the boxes in the center
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexDirection:'row',
-                flexWrap: 'wrap',
-              }
-        } else {
-            return {
-                marginTop:10,
-                height:140,
-                padding:5,
-                width:'100%',
-                backgroundColor:'#353666',
-                borderRadius:10,
-            
-                // Align the boxes in the center
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexDirection:'row',
-                flexWrap: 'wrap',
-              }
-        }
-    }
 
     const checkUserSubscription = async () => {
       const purchaserInfo = await Purchases.getCustomerInfo()
@@ -134,6 +98,21 @@ export default function SettingsPage({ navigation }) {
       Auth.signOut()
     }
 
+    const { attemptMakePurchase } = route.params
+
+    if (attemptMakePurchase) {
+      makePurchase()
+    }
+
+
+    const getPlanText = () => {
+      if (currentPlan === 'pro') {
+        return "Pro"
+      } else {
+        return "Basic"
+      }
+    }
+
     return (
         <View style={styles.container}>
           {/* Main Content Container */}
@@ -141,25 +120,17 @@ export default function SettingsPage({ navigation }) {
                 <Text style={styles.headerText}>Settings</Text>
 
                 {/* Plan Settings */}
-                <Text style={styles.planSectionHeaderText}>Your Plan</Text>
-                <TouchableOpacity style={renderPlanHighlight('basic')}>
-                    <View style={styles.planContainerLeft}>
-                        <Text style={styles.planText}>Basic</Text>
+                <Text style={styles.planSectionHeaderText}>Your Plan: {getPlanText()}</Text>
+                <TouchableOpacity style={styles.proPlanContainer} onPress={makePurchase}>
+                    <View style={styles.planContainerUpper}>
+                        <Text style={styles.proTitleText}>Pro*</Text>
+                        <Text style={styles.proPriceText}>$0.99 per month</Text>
                     </View>
-                    <View style={styles.planContainerRight}>
-                        <Text style={styles.planDescText}>-Save unlimited games</Text>
-                        {/* <Text style={styles.planDescText}>7 successful Strikezone Captures per week</Text> */}
-                        <Text style={styles.planDescText}>-Access essential statistics</Text>
-                    </View>
-                </TouchableOpacity>
-                <TouchableOpacity style={renderPlanHighlight('pro')} onPress={makePurchase}>
-                    <View style={styles.planContainerLeft}>
-                        <Text style={styles.planText}>Pro*</Text>
-                        <Text style={styles.planPriceText}>$0.99 per month</Text>
-                    </View>
-                    <View style={styles.planContainerRight}>
+                    <View style={styles.planContainerLower}>
                         {/* <Text style={styles.planDescText}>7 successful Strikezone captures per day </Text> */}
-                        <Text style={styles.planDescText}>-Compare your statistics to worldwide averages </Text>
+                        <Text style={styles.proPlanDescText}>-Access in-depth statistics</Text>
+                        <Text style={styles.proPlanDescText}>-Compare your statistics to worldwide averages </Text>
+                        <Text style={styles.proPlanDescText}>-5 image uploads per day (maximum of 20)</Text>
                     </View>
                 </TouchableOpacity>
                 <Text style={styles.restartAppText}>*After purchasing SpareStatistics Pro, restart the app for the effects to take place</Text>
@@ -208,7 +179,6 @@ const styles = StyleSheet.create({
 
       planContainer: {
         marginTop:10,
-        marginBottom:10,
         height:140,
         padding:5,
         width:'100%',
@@ -254,6 +224,53 @@ const styles = StyleSheet.create({
         color:'white',
         fontSize:12,
         fontFamily:font
+      },
+
+      proPlanContainer: {
+        marginTop:10,
+        marginBottom:10,
+        padding:5,
+        width:'100%',
+        backgroundColor:'#353666',
+        borderRadius:10,
+    
+        // Align the boxes in the center
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection:'row',
+        flexWrap: 'wrap',
+      },
+
+      proTitleText: {
+        marginTop: 20,
+        alignSelf: 'center',
+        color:'white',
+        fontSize:30,
+        fontFamily:heavyFont
+      },
+
+      proPriceText: {
+        alignSelf: 'center',
+        color:'grey',
+        fontSize:13,
+        fontFamily:font
+      },
+
+      proPlanDescText: {
+        color:'white',
+        fontSize:12,
+        fontFamily:font,
+      },
+
+      planContainerUpper: {
+        width: '100%',
+        marginBottom: 5,
+      },
+
+      planContainerLower: {
+        width: '100%',
+        padding: 20,
+        marginBottom: 10,
       },
 
       signOutButton: {

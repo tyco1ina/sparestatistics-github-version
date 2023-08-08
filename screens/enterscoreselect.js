@@ -6,6 +6,7 @@ import Purchases from 'react-native-purchases';
 import { API_KEY } from '../constants';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { ENTITLEMENT_ID } from '../constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function EnterScoreSelectPage({ navigation }) {
 
@@ -13,6 +14,7 @@ export default function EnterScoreSelectPage({ navigation }) {
     const [packages, setPackages] = useState([])
     const [isPurchasing, setIsPurchasing] = useState(false)
     const [offerings, setOfferings] = useState(null)
+    const [uploadsRemaining, setUploadsRemaining] = useState(0)
 
     const [uploadingImage, setUploadingImage] = useState(false)
 
@@ -47,6 +49,13 @@ export default function EnterScoreSelectPage({ navigation }) {
       const pickImage = async () => {
   
         if (uploadingImage) {
+          return
+        }
+
+        if (uploadsRemaining <= 0) {
+          navigation.navigate("Settings", {
+            attemptMakePurchase: true
+          })
           return
         }
   
@@ -105,8 +114,14 @@ export default function EnterScoreSelectPage({ navigation }) {
   
                 const symbolsLists = JSON.parse(result)
                 if (symbolsLists.length === 1) {
-                    console.log(symbolsLists[0])
-                    console.log(typeof symbolsLists[0])
+
+
+                  const newUploadsRemaining = uploadsRemaining - 1
+                  console.log(`changing newUploadsRemaining to ${newUploadsRemaining}`)
+                  AsyncStorage.setItem("uploadsRemaining", JSON.stringify(newUploadsRemaining))
+                  setUploadsRemaining(newUploadsRemaining)
+
+
                   navigation.navigate('EnterScore', {
                     symbolsSubmitted: JSON.stringify(symbolsLists[0])
                   })
@@ -128,8 +143,16 @@ export default function EnterScoreSelectPage({ navigation }) {
         }
     };
 
+    const handleRemainingUploadCount = async () => {
+      let remainingUploads = await AsyncStorage.getItem("uploadsRemaining")
+      remainingUploads = parseInt(remainingUploads)
+      console.log(`Remaining uploads: ${remainingUploads}`)
+      setUploadsRemaining(remainingUploads)
+    }
+
     useEffect(()=>{
 
+      // Get the packages
       const getPackages = async () => {
 
         await Purchases.configure({apiKey: API_KEY})
@@ -147,7 +170,12 @@ export default function EnterScoreSelectPage({ navigation }) {
       }
 
       getPackages()
+
+      // Check user subscription
       checkUserSubscription()
+
+      // Load the number of games the user has remaining
+      handleRemainingUploadCount()
     }, [])
 
     const renderCorrectUploadButton = () => {
@@ -165,9 +193,11 @@ export default function EnterScoreSelectPage({ navigation }) {
         <View style={styles.container}>
             <ScrollView style={styles.contentContainer}>
                 <Text style={styles.headerText}>Choose a Method</Text>
+                {console.log(uploadsRemaining)}
 
                 <TouchableOpacity style={renderCorrectUploadButton()} onPress={pickImage}>
                     <Text style={styles.methodText}>{uploadingImage ? "Loading..." : "Image Upload"}</Text>
+                    <Text style={styles.uploadsRemainingText}>Uploads remaining: {uploadsRemaining}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.methodButton} onPress={()=>{
                     goToEnterScoreWithManual()
@@ -220,78 +250,9 @@ const styles = StyleSheet.create({
         fontSize:25,
       },
 
-      planSectionHeaderText: {
-        marginTop:30,
-        color:'white',
-        fontSize:20,
-        fontFamily: heavyFont
-      },
-
-      planContainer: {
-        marginTop:10,
-        marginBottom:10,
-        height:140,
-        padding:5,
-        width:'100%',
-        backgroundColor:'#353666',
-        borderRadius:10,
-    
-        // Align the boxes in the center
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexDirection:'row',
-        flexWrap: 'wrap',
-      },
-
-      planContainerLeft: {
-        height:'100%',
-        width:'50%',
-        alignItems:'center',
-        justifyContent:'center'
-      },
-
-      planContainerRight:{
-        height:'100%',
-        width:'50%',
-        justifyContent:'center',
-        padding:10,
-        paddingTop:30,
-        paddingBottom:30,
-      },
-
-      planText: {
-        color:'white',
-        fontSize:30,
-        fontFamily:heavyFont
-      },
-
-      planPriceText: {
-        color:'grey',
-        fontSize:13,
-        fontFamily:font
-      },
-
-      planDescText: {
-        color:'white',
-        fontSize:12,
-        fontFamily:font
-      },
-
-      signOutButton: {
-        marginTop: 15,
-        alignSelf: 'center'
-      },
-
-      signOutButtonText: {
-        color:'white',
-        fontFamily: heavyFont
-      },
-
-      restartAppText: {
-        color:'white',
+      uploadsRemainingText: {
         fontFamily: font,
-        fontSize: 8,
-        padding:5,
-        textAlign:'center'
+        fontSize: 10,
+        color:'white',
       }
 });
