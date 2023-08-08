@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { useState, useRef, useEffect } from 'react';
-import { StyleSheet, Text, View, Button, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Button, TouchableOpacity, ScrollView, TextInput } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { calcAvgMetric, findMedian, findBest } from './statsUtility';
 import { useFocusEffect } from '@react-navigation/native';
@@ -12,6 +12,7 @@ export default function StatsPage({ navigation }) {
   
     const [numGames, setNumGames] = useState(3)
     const [globalGameData, setGlobalGameData] = useState([])
+    const [numLastGames, changeNumLastGames] = useState(3)
     const [userGameData, setUserGameData] = useState({
       "average": "N/A",
       "median": "N/A",
@@ -102,8 +103,7 @@ export default function StatsPage({ navigation }) {
     const timeButtonCorrectRender = (button) => {
       if (button === numGames) {
           return {
-            ...styles.timePeriodSwitchButton,
-            backgroundColor:'#36cfdf'
+            ...styles.timePeriodSwitchButton
         }
       } else {
         return styles.timePeriodSwitchButton
@@ -214,14 +214,15 @@ export default function StatsPage({ navigation }) {
             
               {/* Option to switch between all time and weekly */}
               <View style={styles.timePeriodSwitchContainer}>
-                  <TouchableOpacity style={timeButtonCorrectRender(3)} onPress={()=>{updateNumGames(3)}}>
-                      <Text style={styles.timePeriodSwitchButtonText}>Last 3</Text>
+                  <Text style={styles.timePeriodSwitchButtonText2}>Games: </Text>
+
+                  <View style={{paddingRight: 5}}><TextInput onChangeText={changeNumLastGames} value={numLastGames.toString()} style={styles.textBoxInput}/></View>
+
+                  <TouchableOpacity style={timeButtonCorrectRender('all')} onPress={()=>{updateNumGames(numLastGames.toString().toLowerCase())}}>
+                      <Text style={styles.timePeriodSwitchButtonText}>Enter</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={timeButtonCorrectRender(6)} onPress={()=>{updateNumGames(6)}}>
-                      <Text style={styles.timePeriodSwitchButtonText}>Last 6</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={timeButtonCorrectRender('all')} onPress={()=>{updateNumGames('all')}}>
-                      <Text style={styles.timePeriodSwitchButtonText}>All games</Text>
+                  <TouchableOpacity style={timeButtonCorrectRender('3')} onPress={()=>{updateNumGames('all')}}>
+                      <Text style={styles.timePeriodSwitchButtonText}>All Games</Text>
                   </TouchableOpacity>
               </View>
 
@@ -249,53 +250,6 @@ export default function StatsPage({ navigation }) {
                   </View>
               </View>
               {paidStats()}              
-
-              {/*
-              <Text style={styles.statsSectionHeaderText}>Basic Stats</Text>
-              <View style={styles.basicStatsContainer}>
-                  <View style={styles.statsContainerBox}>
-                      <Text style={styles.statsContainerBoxNumber}>{userGameData['average']}</Text>
-                      <Text style={styles.statsContainerBoxDesc}>Average{doRenderGlobalScores('avgGameScore')}</Text>
-                  </View>
-                  <View style={styles.statsContainerBox}>
-                      <Text style={styles.statsContainerBoxNumber}>{userGameData['median']}</Text>
-                      <Text style={styles.statsContainerBoxDesc}>Median</Text>
-                  </View>
-                  <View style={styles.statsContainerBox}>
-                      <Text style={styles.statsContainerBoxNumber}>{userGameData['highScore']}</Text>
-                      <Text style={styles.statsContainerBoxDesc}>High Score</Text>
-                  </View>
-              </View>
-
-              <Text style={styles.statsSectionHeaderText}>Strikes, Spares, & Opens</Text>
-              <View style={styles.strikesSparesStatsContainer}>
-                  <View style={styles.statsContainerBox}>
-                      <Text style={styles.statsContainerBoxNumber}>{userGameData['avgStrikesPerGame']}</Text>
-                      <Text style={styles.statsContainerBoxDesc}>Avg. Strikes/Game{doRenderGlobalScores('avgStrikesPerGame')}</Text>
-                  </View>
-                  <View style={styles.statsContainerBox}>
-                      <Text style={styles.statsContainerBoxNumber}>{userGameData['avgSparesPerGame']}</Text>
-                      <Text style={styles.statsContainerBoxDesc}>Avg. Spares/Game{doRenderGlobalScores('avgSparesPerGame')}</Text>
-                  </View>
-                  <View style={styles.statsContainerBox}>
-                      <Text style={styles.statsContainerBoxNumber}>{userGameData['avgOpensPerGame']}</Text>
-                      <Text style={styles.statsContainerBoxDesc}>Avg. Opens/Game{doRenderGlobalScores('avgOpensPerGame')}</Text>
-                  </View>
-                  <View style={styles.statsContainerBox}>
-                      <Text style={styles.statsContainerBoxNumber}>{userGameData['avgSpareConvertPercent']}</Text>
-                      <Text style={styles.statsContainerBoxDesc}>Spare Conversion{doRenderGlobalScores('avgSpareConvertPercent')}</Text>
-                  </View>
-                  <View style={styles.statsContainerBox}>
-                      <Text style={styles.statsContainerBoxNumber}>{userGameData['avgFirstBallPinfall']}</Text>
-                      <Text style={styles.statsContainerBoxDesc}>Avg. 1st Ball Pinfall{doRenderGlobalScores('avgFirstBallPinfall')}</Text>
-                  </View>
-                  <View style={styles.statsContainerBox}>
-                      <Text style={styles.statsContainerBoxNumber}>{userGameData['avgOnePinConvertPercent']}</Text>
-                      <Text style={styles.statsContainerBoxDesc}>Single Pin Convert %{doRenderGlobalScores('avgOnePinConvertPercent')}</Text>
-                  </View>
-              </View>
-
-              {paidStats()} */}
             </> 
         )
       } else {
@@ -393,7 +347,13 @@ const styles = StyleSheet.create({
 
   timePeriodSwitchButtonText: {
     color:'white',
-    fontFamily: font
+    fontFamily: font,
+  },
+
+  timePeriodSwitchButtonText2: {
+    color:'white',
+    fontFamily: font,
+    fontSize: 15
   },
 
   statsSectionHeaderText: {
@@ -571,6 +531,19 @@ const styles = StyleSheet.create({
     // Align text in the center of the button
     alignItems: 'center',
     justifyContent: 'center',
+  },
+
+  textBoxInput: {
+    width:50,
+    height:37,
+    justifyContent:'center',
+    textAlign:'center',
+    color:'white',
+    borderWidth:1,
+    borderColor:'white',
+    borderRadius:10,
+    fontSize:20,
+    fontFamily: font
   }
 });
 
