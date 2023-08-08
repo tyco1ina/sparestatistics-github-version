@@ -2,7 +2,6 @@ import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View, ScrollView, Ale
 import { useState, useRef } from 'react';
 import Scorecard from '../components/Scorecard';
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { Icon } from '@rneui/themed';
 
 export default function GamePage({ navigation, route }) {
 
