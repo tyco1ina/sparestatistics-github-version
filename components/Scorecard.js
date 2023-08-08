@@ -2,7 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useState, useRef, useEffect } from 'react';
 import { StyleSheet, Text, View, Button, TouchableOpacity } from 'react-native';
 
-export default function Scorecard({ symbols, scores, highlightedFrame }) {
+export default function Scorecard({ symbols, scores, highlightedFrame, onPress }) {
 
     renderHeaderHighlight = (frame) => {
         if (frame === highlightedFrame) {
@@ -49,8 +49,14 @@ export default function Scorecard({ symbols, scores, highlightedFrame }) {
         }
     }
 
+    const handlePress = () => {
+        if (onPress !== undefined) {
+            onPress()
+        }
+    }
+
     return (
-        <View style={styles.scorecardContainer}>
+        <TouchableOpacity style={styles.scorecardContainer} onPress={handlePress}>
           <View style={renderHeaderHighlight(1)}><Text style={styles.frameText}>1</Text></View>
           <View style={renderHeaderHighlight(2)}><Text style={styles.frameText}>2</Text></View>
           <View style={renderHeaderHighlight(3)}><Text style={styles.frameText}>3</Text></View>
@@ -83,7 +89,7 @@ export default function Scorecard({ symbols, scores, highlightedFrame }) {
           <View style={renderFrameHighlight(8)}><Text style={styles.frameText}>{checkIfNaN(7)}</Text></View>
           <View style={renderFrameHighlight(9)}><Text style={styles.frameText}>{checkIfNaN(8)}</Text></View>
           <View style={renderFrameHighlight(10)}><Text style={styles.frameText}>{checkIfNaN(9)}</Text></View>
-        </View>
+        </TouchableOpacity>
     )
 }
 

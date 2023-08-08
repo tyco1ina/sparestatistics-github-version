@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, ScrollView, TextInput, TouchableOpacity, Alert, Image } from 'react-native';
 import Scorecard from '../components/Scorecard';
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 // import { BannerAd, BannerAdSize, TestIds, InterstitialAd, AdEventType, RewardedInterstitialAd, RewardedAdEventType } from 'react-native-google-mobile-ads';
 import { getScore, getNumSpares, getNumStrikes, getNumOpens, getAvgFirstBallPinfall, getSpareConvertPercent, getOnePinConvertPercent, getAvgScoreDifference, getBestFrame, getWorstFrame, verifyTenthFrame } from './statsUtility';
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -9,12 +9,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid'
 import { launchImageLibrary } from 'react-native-image-picker';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function EnterScorePage({ navigation, route }) {
 
     const { symbolsSubmitted } = route.params;
-
-    const frameInputRef = useRef(null);
 
     let symbolsFromCapture = []
     if (symbolsSubmitted === "manual") {
@@ -30,6 +29,7 @@ export default function EnterScorePage({ navigation, route }) {
     let [hasGalleryPermissions, setHasGalleryPermissions] = useState(null)
     let [image, setImage] = useState(null)
     let [uploadingImage, setUploadingImage] = useState(false)
+
 
     let leftArrow = "<"
     let rightArrow = ">"
@@ -330,28 +330,6 @@ export default function EnterScorePage({ navigation, route }) {
       }
     }
 
-    const renderCorrectUploadButton = () => {
-      if (!uploadingImage) {
-        return {
-          marginBottom: 10,
-
-          backgroundColor:'#353666',
-          height:45,
-          width:170,
-          borderRadius: 10,
-          justifyContent:'center'
-        }
-      } else {
-        return {
-          marginBottom: 10,
-          backgroundColor:'#28284dff',
-          height:45,
-          width:170,
-          borderRadius: 10,
-          justifyContent:'center'
-        }
-      }
-    }
 
     const renderCorrectSubmitText = () => {
       if (!submittingGame) {
@@ -360,93 +338,7 @@ export default function EnterScorePage({ navigation, route }) {
         return "Submitting..."
       }
     }
-
-    const renderCorrectUploadText = () => {
-      if (!uploadingImage) {
-        return "Upload Image"
-      } else {
-        return "Uploading..."
-      }
-    }
-
-    useEffect(() => {
-      (async () => {
-        const galleryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync()
-        setHasGalleryPermissions(galleryStatus.status === 'granted')
-      })
-    })
-
-    const pickImage = async () => {
-
-      if (uploadingImage) {
-        return
-      }
-
-      const options = {
-        mediaType: 'photo',
-      };
-
-      launchImageLibrary(options, response => {
-        if (response['assets'][0]['uri']) {
-          // Handle the selected image here
-          console.log('Selected image URI:', response['assets'][0]['uri']);
-          uploadImage(response['assets'][0]['uri'])
-        }
-      });
-      
-    }
-
-    const uploadImage = async (imageUri) => {
-      const url = 'https://8l5amkvz24.execute-api.us-east-1.amazonaws.com/prod/sparestatistics-full-image-uploader';
-      const response = await fetch(imageUri)
-      const imgBlob = await response.blob()
-
-      try {
-
-          setUploadingImage(true)
-          console.log("making response")
-          const response = await fetch(url, {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/octet-stream'
-              }, 
-              body: imgBlob
-          })
-
-          console.log("finished response")
-
-          if (response.status === 200) {
-              console.log(response)
-              const result = await response.text();
-              console.log(result);
-
-              if (result === "Reading scorecard was unsuccessful") {
-                  setUploadingImage(false)
-                  return
-              }
-
-              const symbolsLists = JSON.parse(result)
-              if (symbolsLists.length === 1) {
-                setSymbols(symbolsLists[0])
-                setScores(handleScoresList(symbolsLists[0]))
-              } else {
-                navigation.navigate('SelectGame', {
-                  symbolsLists: symbolsLists
-                })
-              }
-
-              setUploadingImage(false)
-          } else {
-              console.log('Error uploading image. Status code:', response.status);
-              console.log(response)
-              setUploadingImage(false)
-          }
-      } catch (error) {
-          console.log('Error reading file:', error);
-          setUploadingImage(false)
-      }
-  };
-
+    
   return (
     
     <View style={styles.container}>
@@ -455,9 +347,6 @@ export default function EnterScorePage({ navigation, route }) {
 
             {/* Describe the scorecard */}
             <Text style={styles.headerText}>Enter a Score</Text>
-            <TouchableOpacity style={renderCorrectUploadButton()} onPress={() => pickImage()}>
-              <Text style={styles.submitButtonText}>{renderCorrectUploadText()}</Text>
-            </TouchableOpacity>
 
             <Text style={styles.directionsText}>In the white box:</Text>
             <Text style={styles.directionsText}>- Enter a strike as an 'X'</Text>

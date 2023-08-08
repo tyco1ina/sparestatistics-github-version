@@ -340,7 +340,7 @@ export default function StatsPage({ navigation }) {
         return (
           <View style={styles.noGamesContainer}>
             <Text style={styles.noGamesHeader}>Save a new game to start seeing statistics about your bowling games</Text>
-            <TouchableOpacity style={styles.noGameNewGameButton} onPress={()=>{navigateToEnterScore()}}>
+            <TouchableOpacity style={styles.noGameNewGameButton} onPress={()=>{navigation.navigate('EnterScoreSelect')}}>
               <Text style={styles.timePeriodSwitchButtonText}>New Game</Text>
             </TouchableOpacity>
           </View>
@@ -363,7 +363,7 @@ export default function StatsPage({ navigation }) {
 
         </ScrollView>
       <View style={styles.statsPageFooter}>
-        <TouchableOpacity style={styles.footerButton} onPress={navigateToEnterScore}>
+        <TouchableOpacity style={styles.footerButton} onPress={()=>navigation.navigate("EnterScoreSelect")}>
             <Text style={styles.footerButtonText}>New Game</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.footerButton} onPress={()=>{navigate('Games')}}>
