@@ -194,7 +194,7 @@ export default function StatsPage({ navigation }) {
             <Text style={styles2.planSectionHeaderText}>Game Dynamics</Text>
             <View style={styles2.statsContainer}>
                 <View style={styles2.statsContainerLeft}>
-                  <Text style={styles2.statTitleText}>Average First Ball Pinfall</Text>
+                  <Text style={styles2.statTitleText}>Average First Ball Pinfall {plan == 'pro' ? "(" + globalGameData["avgFirstBallPinfall"] + ")": ""}</Text>
                     <Text style={styles2.statTitleText}>Average Frame Score Difference</Text>
                     <Text style={styles2.statTitleText}>Average Best Frame</Text>
                     <Text style={styles2.statTitleText}>Average Worst Frame</Text>
@@ -218,6 +218,7 @@ export default function StatsPage({ navigation }) {
     // Render the statistics if the user has games
     // Otherwise, render a message encouraging the user to log a game
     const renderStatsIfGames = () => {
+      console.log(globalGameData)
       if (userGames.length > 0) {
         return (
             <>
@@ -239,14 +240,14 @@ export default function StatsPage({ navigation }) {
               <Text style={styles2.planSectionHeaderText}>Essential Statistics</Text>
               <View style={styles2.statsContainer}>
                   <View style={styles2.statsContainerLeft}>
-                    <Text style={styles2.statTitleText}>Average Score</Text>
-                      <Text style={styles2.statTitleText}>Median</Text>
-                      <Text style={styles2.statTitleText}>High Score</Text>
-                      <Text style={styles2.statTitleText}>Avg. Strikes/Game</Text>
-                      <Text style={styles2.statTitleText}>Avg. Spares/Game</Text>
-                      <Text style={styles2.statTitleText}>Avg. Opens/Game</Text>
+                    <Text style={styles2.statTitleText}>Average Score {plan == 'pro' ? "(" + globalGameData["average"] + ")": ""}</Text>
+                      <Text style={styles2.statTitleText}>Median {plan == 'pro' ? "(" + globalGameData["median"] + ")": ""}</Text>
+                      <Text style={styles2.statTitleText}>High Score {plan == 'pro' ? "(" + globalGameData["highScore"] + ")": ""}</Text>
+                      <Text style={styles2.statTitleText}>Avg. Strikes/Game {plan == 'pro' ? "(" + globalGameData["avgStrikesPerGame"] + ")": ""}</Text>
+                      <Text style={styles2.statTitleText}>Avg. Spares/Game {plan == 'pro' ? "(" + globalGameData["avgSparesPerGame"] + ")": ""}</Text>
+                      <Text style={styles2.statTitleText}>Avg. Opens/Game {plan == 'pro' ? "(" + globalGameData["avgOpensPerGame"] + ")": ""}</Text>
                       <Text style={styles2.statTitleText}>Spare Conversion</Text>
-                      <Text style={styles2.statTitleText}>Single Pin Convert %</Text>
+                      <Text style={styles2.statTitleText}>Single Pin Convert % {plan == 'pro' ? "(" + globalGameData["avgSinglePinConvertPercent"] + ")": ""}</Text>
                   </View>
                   <View style={styles2.statsContainerRight}>
                       <Text style={styles2.statTitleText}>{userGameData['average']}</Text>
