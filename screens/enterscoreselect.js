@@ -7,6 +7,8 @@ import { API_KEY } from '../constants';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { ENTITLEMENT_ID } from '../constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
+import * as React from 'react'
 
 export default function EnterScoreSelectPage({ navigation }) {
 
@@ -23,6 +25,8 @@ export default function EnterScoreSelectPage({ navigation }) {
       const purchaserInfo = await Purchases.getCustomerInfo()
       if (typeof purchaserInfo.entitlements.active[ENTITLEMENT_ID] !== "undefined") {
         setCurrentPlan('pro')
+
+        claimDailyUploads()
       } else {
         setCurrentPlan('basic')
       }
@@ -42,7 +46,8 @@ export default function EnterScoreSelectPage({ navigation }) {
         }
 
         navigation.navigate("EnterScore", {
-            symbolsSubmitted: "manual"
+            symbolsSubmitted: "manual",
+            usedUpload: false
         })
     }
   
@@ -115,15 +120,9 @@ export default function EnterScoreSelectPage({ navigation }) {
                 const symbolsLists = JSON.parse(result)
                 if (symbolsLists.length === 1) {
 
-
-                  const newUploadsRemaining = uploadsRemaining - 1
-                  console.log(`changing newUploadsRemaining to ${newUploadsRemaining}`)
-                  AsyncStorage.setItem("uploadsRemaining", JSON.stringify(newUploadsRemaining))
-                  setUploadsRemaining(newUploadsRemaining)
-
-
                   navigation.navigate('EnterScore', {
-                    symbolsSubmitted: JSON.stringify(symbolsLists[0])
+                    symbolsSubmitted: JSON.stringify(symbolsLists[0]),
+                    usedUpload: true
                   })
                 } else {
                   navigation.navigate('SelectGame', {
@@ -178,6 +177,58 @@ export default function EnterScoreSelectPage({ navigation }) {
       handleRemainingUploadCount()
     }, [])
 
+    const getCurrentDateInMMDDYYYY = () => {
+      const currentDate = new Date();
+    
+      const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+      const day = String(currentDate.getDate()).padStart(2, '0');
+      const year = currentDate.getFullYear();
+    
+      const formattedDate = `${month}/${day}/${year}`;
+      return formattedDate;
+    }
+
+    const isNewDay = async () => {
+      const currentDate = getCurrentDateInMMDDYYYY()
+      const daysWithApp = await AsyncStorage.getItem("days")
+      const days = JSON.parse(daysWithApp)
+      console.log(days)
+      console.log(currentDate)
+      const isNewDay = !days.includes(currentDate)
+
+      console.log(isNewDay)
+      return isNewDay
+    }
+
+    const claimDailyUploads = async () => {
+      console.log("Got here")
+
+      console.log("got here 2")
+
+      const newDay = await isNewDay()
+      if (newDay) {
+        console.log("it is a new day, so giving 5 uploads.")
+        const uploadsRemaining = await AsyncStorage.getItem("uploadsRemaining")
+        let uploads = parseInt(uploadsRemaining)
+
+        if (uploads + 5 > 20){
+          uploads = 20
+        } else {
+          uploads = uploads + 5
+        }
+        AsyncStorage.setItem("uploadsRemaining", JSON.stringify(uploads))
+
+        const daysWithApp = await AsyncStorage.getItem("days")
+        const days = JSON.parse(daysWithApp)
+        days.push(getCurrentDateInMMDDYYYY())
+        AsyncStorage.setItem("days", JSON.stringify(days))
+        console.log(`uploads is now ${uploads}`)
+        setUploadsRemaining(uploads)
+      } else {
+        console.log("it is not a new day")
+      }
+    }
+
     const renderCorrectUploadButton = () => {
         if (uploadingImage) {
             return {
@@ -189,11 +240,16 @@ export default function EnterScoreSelectPage({ navigation }) {
         }
     }
 
+    useFocusEffect(
+      React.useCallback(() => {
+        handleRemainingUploadCount()
+      }, [])
+    );
+
     return (
         <View style={styles.container}>
             <ScrollView style={styles.contentContainer}>
                 <Text style={styles.headerText}>Choose a Method</Text>
-                {console.log(uploadsRemaining)}
 
                 <TouchableOpacity style={renderCorrectUploadButton()} onPress={pickImage}>
                     <Text style={styles.methodText}>{uploadingImage ? "Loading..." : "Image Upload"}</Text>
@@ -254,5 +310,11 @@ const styles = StyleSheet.create({
         fontFamily: font,
         fontSize: 10,
         color:'white',
+      },
+
+      claimDailyUploadsButton: {
+        marginLeft:2,
+        color:'white',
+        fontFamily:font
       }
 });

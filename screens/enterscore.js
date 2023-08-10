@@ -13,7 +13,9 @@ import { useFocusEffect } from '@react-navigation/native';
 
 export default function EnterScorePage({ navigation, route }) {
 
-    const { symbolsSubmitted } = route.params;
+    const { symbolsSubmitted, usedUpload } = route.params;
+    console.log("used upload")
+    console.log(usedUpload)
 
     let symbolsFromCapture = []
     if (symbolsSubmitted === "manual") {
@@ -193,6 +195,14 @@ export default function EnterScorePage({ navigation, route }) {
       }
     }
 
+    const decreaseRemainingUploads = async () => {
+      let remainingUploads = await AsyncStorage.getItem("uploadsRemaining")
+      remainingUploads = parseInt(remainingUploads)
+      const newUploadsRemaining = remainingUploads - 1
+      console.log(`changing newUploadsRemaining to ${newUploadsRemaining}`)
+      AsyncStorage.setItem("uploadsRemaining", JSON.stringify(newUploadsRemaining))
+    }
+
     const handleSubmit = async () => {
 
       if (submittingGame) {
@@ -272,6 +282,10 @@ export default function EnterScorePage({ navigation, route }) {
       }
 
       saveGame(data)
+      
+      if (usedUpload) {
+        decreaseRemainingUploads()
+      }
 
       const url = 'https://8l5amkvz24.execute-api.us-east-1.amazonaws.com/prod/strikezone-put-game';
         try {
@@ -308,24 +322,11 @@ export default function EnterScorePage({ navigation, route }) {
 
     const renderCorrectSubmitButton = () => {
       if (!submittingGame) {
-        return {
-          marginTop: 20,
-          alignSelf:'center',
-          backgroundColor:'#353666',
-          height:50,
-          width:200,
-          borderRadius: 10,
-          justifyContent:'center'
-        }
+        return styles.submitButton
       } else {
         return {
-          marginTop: 20,
-          alignSelf:'center',
-          backgroundColor:'#28284dff',
-          height:50,
-          width:200,
-          borderRadius: 10,
-          justifyContent:'center'
+          ...styles.submitButton,
+          backgroundColor:'#28284dff'
         }
       }
     }
@@ -348,7 +349,8 @@ export default function EnterScorePage({ navigation, route }) {
             {/* Describe the scorecard */}
             <Text style={styles.headerText}>Enter a Score</Text>
 
-            <Text style={styles.directionsText}>In the white box:</Text>
+            <Text style={styles.directionsText}>{usedUpload ? "(Image Upload used)" : ""}</Text>
+            <Text style={{...styles.directionsText, marginTop: 10}}>In the white box:</Text>
             <Text style={styles.directionsText}>- Enter a strike as an 'X'</Text>
             <Text style={styles.directionsText}>- Enter spares as a number with a slash. Ex: '9/'</Text>
             <Text style={styles.directionsText}>- Enter open frames as two numbers. Ex: '36'</Text>
@@ -608,6 +610,7 @@ const styles = StyleSheet.create({
 
       submitButton: {
         marginTop: 20,
+        marginBottom: 20,
         alignSelf:'center',
         backgroundColor:'#353666',
         height:50,

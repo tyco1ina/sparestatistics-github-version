@@ -123,17 +123,18 @@ export default function SettingsPage({ navigation, route }) {
                 <Text style={styles.planSectionHeaderText}>Your Plan: {getPlanText()}</Text>
                 <TouchableOpacity style={styles.proPlanContainer} onPress={makePurchase}>
                     <View style={styles.planContainerUpper}>
-                        <Text style={styles.proTitleText}>Pro*</Text>
+                        <Text style={styles.proTitleText}>Pro</Text>
                         <Text style={styles.proPriceText}>$0.99 per month</Text>
                     </View>
                     <View style={styles.planContainerLower}>
                         {/* <Text style={styles.planDescText}>7 successful Strikezone captures per day </Text> */}
-                        <Text style={styles.proPlanDescText}>- Access in-depth statistics</Text>
-                        <Text style={styles.proPlanDescText}>- Compare your statistics to worldwide averages </Text>
-                        <Text style={styles.proPlanDescText}>- 5 image uploads per day (maximum of 20)</Text>
+                        <Text style={styles.proPlanDescText}>- Access in-depth statistics beyond the essentials</Text>
+                        {/* <Text style={styles.proPlanDescText}>- Compare your statistics to worldwide averages </Text> */}
+                        <Text style={styles.proPlanDescText}>- 5 image uploads each day you open the app</Text>
                     </View>
                 </TouchableOpacity>
-                <Text style={styles.restartAppText}>*After purchasing SpareStatistics Pro, restart the app for the effects to take place</Text>
+                <Text style={styles.restartAppText}>After purchasing SpareStatistics Pro, restart the app for the effects to take place</Text>
+                <Text style={styles.restartAppText}>Users can have up to 20 uploads ready at any given time</Text>
 
                 <TouchableOpacity style={styles.signOutButton} onPress={restorePurchase}>
                     <Text style={styles.signOutButtonText}>Restore Purchase</Text>

@@ -65,7 +65,8 @@ export default function SelectGamePage({ navigation, route }) {
       console.log(symbolsList)
       console.log(typeof symbolsList)
       navigation.navigate('EnterScore', {
-        symbolsSubmitted: JSON.stringify(symbolsList)
+        symbolsSubmitted: JSON.stringify(symbolsList),
+        usedUpload: true
     })
     }
 

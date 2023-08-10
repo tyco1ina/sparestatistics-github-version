@@ -26,7 +26,7 @@ export default function StatsPage({ navigation }) {
       "avgBestFrame": "N/A",
       "avgWorstFrame" : "N/A",
       "avgScoreDiff": "N/A"
-    })
+    }) 
     const [userGames, setUserGames] = useState([])
     const [interstitialLoaded, setInterstitialLoaded] = useState(false)
     const [plan, setPlan] = useState('basic')
@@ -43,13 +43,15 @@ export default function StatsPage({ navigation }) {
       setGlobalGameData(data)
     };
 
+
     // If this is the first time the user is opening the app, save the necessary things in storage
     const initializeApp = async () => {
-      const firstTime = await AsyncStorage.getItem("firstTime5")
+      const firstTime = await AsyncStorage.getItem("firstTime7")
       if (firstTime === null) {
-        AsyncStorage.setItem("firstTime5", "no")
+        AsyncStorage.setItem("firstTime7", "no")
         AsyncStorage.setItem("games", JSON.stringify([]))
         AsyncStorage.setItem("uploadsRemaining", "5")
+        AsyncStorage.setItem("days", JSON.stringify([getCurrentDateInMMDDYYYY()]))
       }
     }
 
@@ -132,6 +134,7 @@ export default function StatsPage({ navigation }) {
       }
     }
 
+
     // Check if the user has paid for pro
     const checkUserSubscription = async () => {
 
@@ -144,9 +147,15 @@ export default function StatsPage({ navigation }) {
       // If the user is subscribed, set the subscription state to pro
       if (typeof purchaserInfo.entitlements.active[ENTITLEMENT_ID] !== "undefined") {
         setPlan('pro')
+
+
       } else {
         setPlan('basic')
       }
+    }
+
+    const checkLocalStorage = async () => {
+      console.log(await isNewDay())
     }
 
     // useEffect for when the component is rendered for the first time
