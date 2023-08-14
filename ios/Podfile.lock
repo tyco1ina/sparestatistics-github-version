@@ -786,7 +786,11 @@ SPEC CHECKSUMS:
   RNAWSCognito: 5687577d12900389a893a9705ce31b6fa71c3805
   RNCAsyncStorage: f47fe18526970a69c34b548883e1aeceb115e3e1
   RNCPicker: 0bc2f0a29abcca7b7ed44a2d036aac9ab6d25700
+<<<<<<< HEAD
+  RNPermissions: a546b69083a04ac9420dd21fbef23a1dc9405b80
+=======
   RNPermissions: f1b49dd05fa9b83993cd05a9ee115247944d8f1a
+>>>>>>> 6f4ac7a5bfcfd6d41546fccc89d7aed5d6136cdf
   RNPurchases: 9f018b6ef98e38fd992004adb08cfbffc6307beb
   RNScreens: 6a8a3c6b808aa48dca1780df7b73ea524f602c63
   RNSVG: 03e4d258ca355d7836a0a5dd4d4dc63c1eb49cbb

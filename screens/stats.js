@@ -91,8 +91,19 @@ export default function StatsPage({ navigation }) {
         } else {
         }
       } catch (error) {
-        alert(error)
+        alert("Unable to get global statistics at the moment.")
       }
+    }
+
+    const getCurrentDateInMMDDYYYY = () => {
+      const currentDate = new Date();
+    
+      const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+      const day = String(currentDate.getDate()).padStart(2, '0');
+      const year = currentDate.getFullYear();
+    
+      const formattedDate = `${month}/${day}/${year}`;
+      return formattedDate;
     }
 
     // Updates the state of the number of games to calculate statistics for
@@ -218,7 +229,6 @@ export default function StatsPage({ navigation }) {
     // Render the statistics if the user has games
     // Otherwise, render a message encouraging the user to log a game
     const renderStatsIfGames = () => {
-      console.log(globalGameData)
       if (userGames.length > 0) {
         return (
             <>

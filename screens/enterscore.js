@@ -28,7 +28,7 @@ export default function EnterScorePage({ navigation, route }) {
     let [currentFrame, setCurrentFrame] = useState(1)
     let [currentFrameSymbolInput, setCurrentFrameSymbolInput] = useState('')
     let [submittingGame, setSubmittingGame] = useState(false);
-    let [isInclude, changeInclude] = useState(false);
+    let [isInclude, changeInclude] = useState(true);
     let [oilPattern, changeOilPattern] = useState("")
     let [ballOption, changeBallOption] = useState("")
     let [hasGalleryPermissions, setHasGalleryPermissions] = useState(null)
@@ -266,6 +266,9 @@ export default function EnterScorePage({ navigation, route }) {
 
       let data = {
         id: uuidv4(),
+        includeInStatistics: isInclude,
+        ball: ballOption,
+        oilPattern: oilPattern,
 
         date: month + "/" + date + "/" + year,
         score: parseInt(getScore(scores)),
@@ -285,6 +288,7 @@ export default function EnterScorePage({ navigation, route }) {
       }
 
       saveGame(data)
+      console.log(data)
       
       if (usedUpload) {
         decreaseRemainingUploads()
@@ -303,6 +307,8 @@ export default function EnterScorePage({ navigation, route }) {
 
             if (response.status === 200) {
                 const result = await response.text();
+
+                navigation.navigate("Stats")
 
                 Alert.alert(
                   'Game Saved',
@@ -385,20 +391,10 @@ export default function EnterScorePage({ navigation, route }) {
             </View> */}
 
             <View style={styles.options}>
-              <View style={styles.includeStatsView}>
-                <Text style={styles.includeText}>Include in Statistics: </Text>
-                <Switch
-                  trackColor={{false: '#2a2b4c', true: '#36cfdf'}}
-                  thumbColor={isInclude ? '#f4f3f4' : '#f4f3f4'}
-                  ios_backgroundColor="#2a2b4c"
-                  onValueChange={changeInclude}
-                  value={isInclude}
-                />
-              </View>
 
               <TextInput
                 style={styles.oilPatternInput}
-                placeholderTextColor={'#f4f3f4'}
+                placeholderTextColor={'grey'}
                 onChangeText={changeOilPattern}
                 value={oilPattern}
                 placeholder='Oil Pattern (Optional)'
@@ -406,15 +402,15 @@ export default function EnterScorePage({ navigation, route }) {
 
               <TextInput
                 style={styles.oilPatternInput}
-                placeholderTextColor={'#f4f3f4'}
+                placeholderTextColor={'grey'}
                 onChangeText={changeBallOption}
                 value={ballOption}
-                placeholder='Ball Option (Optional)'
+                placeholder='Ball (Optional)'
               />
             </View>
             
             {/* Basic Stats */}
-            <Text style={styles.statsSectionHeaderText}>Your Game at a Glance</Text>
+            {/* <Text style={styles.statsSectionHeaderText}>Your Game at a Glance</Text>
             <View style={styles.basicStatsContainer}>
                 <View style={styles.statsContainerBox}>
                     <Text style={styles.statsContainerBoxNumber}>{getScore(scores)}</Text>
@@ -440,6 +436,17 @@ export default function EnterScorePage({ navigation, route }) {
                     <Text style={styles.statsContainerBoxNumber}>{getNumOpens(symbols)}</Text>
                     <Text style={styles.statsContainerBoxDesc}># Opens</Text>
                 </View>
+            </View> */}
+
+            <View style={styles.includeStatsView}>
+                <Text style={styles.includeText}>Include in Statistics:  </Text>
+                <Switch
+                  trackColor={{false: '#2a2b4c', true: '#36cfdf'}}
+                  thumbColor={isInclude ? '#f4f3f4' : '#f4f3f4'}
+                  ios_backgroundColor="#2a2b4c"
+                  onValueChange={changeInclude}
+                  value={isInclude}
+                />
             </View>
 
             {/* Submit Button */}
@@ -665,19 +672,21 @@ const styles = StyleSheet.create({
 
       includeStatsView: {
         flexDirection: 'row',
-        marginBottom: 5
+        marginTop: 15,
+        justifyContent:'center',
+        alignItems:'center'
       },
       includeText: {
         marginLeft:2,
         color:'white',
         fontFamily: font,
-        fontSize: 20
+        fontSize: 15
       },
       options: {
 
       },
       oilPatternInput: {
-        width: 350,
+        width: '100%',
         height:40,
         justifyContent:'center',
         textAlign:'center',
@@ -687,7 +696,7 @@ const styles = StyleSheet.create({
         borderRadius:10,
         fontSize: 15,
         fontFamily: font,
-        marginBottom: 5
+        marginTop: 10
       }
     }
 )
