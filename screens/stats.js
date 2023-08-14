@@ -46,9 +46,9 @@ export default function StatsPage({ navigation }) {
 
     // If this is the first time the user is opening the app, save the necessary things in storage
     const initializeApp = async () => {
-      const firstTime = await AsyncStorage.getItem("firstTime7")
+      const firstTime = await AsyncStorage.getItem("firstTime8")
       if (firstTime === null) {
-        AsyncStorage.setItem("firstTime7", "no")
+        AsyncStorage.setItem("firstTime8", "no")
         AsyncStorage.setItem("games", JSON.stringify([]))
         AsyncStorage.setItem("uploadsRemaining", "5")
         AsyncStorage.setItem("days", JSON.stringify([getCurrentDateInMMDDYYYY()]))

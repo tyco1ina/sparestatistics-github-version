@@ -25,8 +25,6 @@ export default function EnterScoreSelectPage({ navigation }) {
       const purchaserInfo = await Purchases.getCustomerInfo()
       if (typeof purchaserInfo.entitlements.active[ENTITLEMENT_ID] !== "undefined") {
         setCurrentPlan('pro')
-
-        claimDailyUploads()
       } else {
         setCurrentPlan('basic')
       }
@@ -178,6 +176,7 @@ export default function EnterScoreSelectPage({ navigation }) {
     }, [])
 
     const getCurrentDateInMMDDYYYY = () => {
+      alert("getting date")
       const currentDate = new Date();
     
       const month = String(currentDate.getMonth() + 1).padStart(2, '0');
@@ -185,6 +184,7 @@ export default function EnterScoreSelectPage({ navigation }) {
       const year = currentDate.getFullYear();
     
       const formattedDate = `${month}/${day}/${year}`;
+      alert(`returning ${formattedDate}`)
       return formattedDate;
     }
 
@@ -204,28 +204,34 @@ export default function EnterScoreSelectPage({ navigation }) {
       console.log("Got here")
 
       console.log("got here 2")
+      alert("Checking to see if uploads can be given")
 
       const newDay = await isNewDay()
       if (newDay) {
-        console.log("it is a new day, so giving 5 uploads.")
-        const uploadsRemaining = await AsyncStorage.getItem("uploadsRemaining")
-        let uploads = parseInt(uploadsRemaining)
+        try {
+          console.log("it is a new day, so giving 5 uploads.")
+          const uploadsRemaining = await AsyncStorage.getItem("uploadsRemaining")
+          let uploads = parseInt(uploadsRemaining)
 
-        if (uploads + 5 > 20){
-          uploads = 20
-        } else {
-          uploads = uploads + 5
+          if (uploads + 5 > 20){
+            uploads = 20
+          } else {
+            uploads = uploads + 5
+          }
+          AsyncStorage.setItem("uploadsRemaining", JSON.stringify(uploads))
+
+          const daysWithApp = await AsyncStorage.getItem("days")
+          const days = JSON.parse(daysWithApp)
+          days.push(getCurrentDateInMMDDYYYY())
+          AsyncStorage.setItem("days", JSON.stringify(days))
+          console.log(`uploads is now ${uploads}`)
+          alert("Added uploads successfully!")
+          setUploadsRemaining(uploads)
+        } catch (error) {
+          alert(error)
         }
-        AsyncStorage.setItem("uploadsRemaining", JSON.stringify(uploads))
-
-        const daysWithApp = await AsyncStorage.getItem("days")
-        const days = JSON.parse(daysWithApp)
-        days.push(getCurrentDateInMMDDYYYY())
-        AsyncStorage.setItem("days", JSON.stringify(days))
-        console.log(`uploads is now ${uploads}`)
-        setUploadsRemaining(uploads)
       } else {
-        console.log("it is not a new day")
+        alert("Uploads already claimed today.")
       }
     }
 
@@ -250,6 +256,13 @@ export default function EnterScoreSelectPage({ navigation }) {
         <View style={styles.container}>
             <ScrollView style={styles.contentContainer}>
                 <Text style={styles.headerText}>Choose a Method</Text>
+
+                {currentPlan === 'pro' ? 
+                  <TouchableOpacity onPress={claimDailyUploads}>
+                    <Text style={styles.claimDailyUploadsButton}>Claim Daily Uploads</Text>
+                  </TouchableOpacity>
+                  : null
+                }
 
                 <TouchableOpacity style={renderCorrectUploadButton()} onPress={pickImage}>
                     <Text style={styles.methodText}>{uploadingImage ? "Loading..." : "Image Upload"}</Text>
