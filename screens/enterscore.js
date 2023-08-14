@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, ScrollView, TextInput, TouchableOpacity, Alert, Image } from 'react-native';
+import { StyleSheet, Switch, Text, View, ScrollView, TextInput, TouchableOpacity, Alert, Image } from 'react-native';
 import Scorecard from '../components/Scorecard';
 import React, { useState, useRef, useEffect } from 'react';
 // import { BannerAd, BannerAdSize, TestIds, InterstitialAd, AdEventType, RewardedInterstitialAd, RewardedAdEventType } from 'react-native-google-mobile-ads';
@@ -28,6 +28,9 @@ export default function EnterScorePage({ navigation, route }) {
     let [currentFrame, setCurrentFrame] = useState(1)
     let [currentFrameSymbolInput, setCurrentFrameSymbolInput] = useState('')
     let [submittingGame, setSubmittingGame] = useState(false);
+    let [isInclude, changeInclude] = useState(false);
+    let [oilPattern, changeOilPattern] = useState("")
+    let [ballOption, changeBallOption] = useState("")
     let [hasGalleryPermissions, setHasGalleryPermissions] = useState(null)
     let [image, setImage] = useState(null)
     let [uploadingImage, setUploadingImage] = useState(false)
@@ -381,6 +384,35 @@ export default function EnterScorePage({ navigation, route }) {
               />
             </View> */}
 
+            <View style={styles.options}>
+              <View style={styles.includeStatsView}>
+                <Text style={styles.includeText}>Include in Statistics: </Text>
+                <Switch
+                  trackColor={{false: '#2a2b4c', true: '#36cfdf'}}
+                  thumbColor={isInclude ? '#f4f3f4' : '#f4f3f4'}
+                  ios_backgroundColor="#2a2b4c"
+                  onValueChange={changeInclude}
+                  value={isInclude}
+                />
+              </View>
+
+              <TextInput
+                style={styles.oilPatternInput}
+                placeholderTextColor={'#f4f3f4'}
+                onChangeText={changeOilPattern}
+                value={oilPattern}
+                placeholder='Oil Pattern (Optional)'
+              />
+
+              <TextInput
+                style={styles.oilPatternInput}
+                placeholderTextColor={'#f4f3f4'}
+                onChangeText={changeBallOption}
+                value={ballOption}
+                placeholder='Ball Option (Optional)'
+              />
+            </View>
+            
             {/* Basic Stats */}
             <Text style={styles.statsSectionHeaderText}>Your Game at a Glance</Text>
             <View style={styles.basicStatsContainer}>
@@ -630,5 +662,32 @@ const styles = StyleSheet.create({
         color:'white',
         fontFamily: font,
       },
+
+      includeStatsView: {
+        flexDirection: 'row',
+        marginBottom: 5
+      },
+      includeText: {
+        marginLeft:2,
+        color:'white',
+        fontFamily: font,
+        fontSize: 20
+      },
+      options: {
+
+      },
+      oilPatternInput: {
+        width: 350,
+        height:40,
+        justifyContent:'center',
+        textAlign:'center',
+        color:'white',
+        borderWidth:1,
+        borderColor:'white',
+        borderRadius:10,
+        fontSize: 15,
+        fontFamily: font,
+        marginBottom: 5
+      }
     }
 )
