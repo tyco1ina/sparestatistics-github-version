@@ -176,7 +176,6 @@ export default function EnterScoreSelectPage({ navigation }) {
     }, [])
 
     const getCurrentDateInMMDDYYYY = () => {
-      alert("getting date")
       const currentDate = new Date();
     
       const month = String(currentDate.getMonth() + 1).padStart(2, '0');
@@ -184,7 +183,6 @@ export default function EnterScoreSelectPage({ navigation }) {
       const year = currentDate.getFullYear();
     
       const formattedDate = `${month}/${day}/${year}`;
-      alert(`returning ${formattedDate}`)
       return formattedDate;
     }
 
@@ -204,7 +202,6 @@ export default function EnterScoreSelectPage({ navigation }) {
       console.log("Got here")
 
       console.log("got here 2")
-      alert("Checking to see if uploads can be given")
 
       const newDay = await isNewDay()
       if (newDay) {
@@ -228,7 +225,7 @@ export default function EnterScoreSelectPage({ navigation }) {
           alert("Added uploads successfully!")
           setUploadsRemaining(uploads)
         } catch (error) {
-          alert(error)
+          alert("Something went wrong. Try again.")
         }
       } else {
         alert("Uploads already claimed today.")
