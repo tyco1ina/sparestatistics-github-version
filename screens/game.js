@@ -1,7 +1,8 @@
-import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View, ScrollView, Alert } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View, ScrollView, Alert, Dimensions } from 'react-native';
 import { useState, useRef } from 'react';
 import Scorecard from '../components/Scorecard';
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { LineChart } from "react-native-chart-kit";
 
 export default function GamePage({ navigation, route }) {
 
@@ -139,6 +140,43 @@ export default function GamePage({ navigation, route }) {
                         <Text style={styles.statTitleText}>{gameToShow['worstFrame']}</Text>
                     </View>
                 </View>
+
+                <LineChart
+                  data={{
+                    labels: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
+                    datasets: [
+                      {
+                        data: gameToShow['scoresList']
+                      }
+                    ]
+                  }}
+                  width={Dimensions.get('window').width * .9}  // from react-native
+                  height={220}
+                  yAxisLabel=""
+                  yAxisSuffix=""
+                  yAxisInterval={1} // optional, defaults to 1
+                  chartConfig={{
+                    backgroundColor: "#e26a00",
+                    backgroundGradientFrom: "#353666",
+                    backgroundGradientTo: "#353666",
+                    decimalPlaces: 2, // optional, defaults to 2dp
+                    color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                    labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                    style: {
+                      borderRadius: 16
+                    },
+                    propsForDots: {
+                      r: "6",
+                      strokeWidth: "2",
+                      stroke: "#36cfdf"
+                    }
+                  }}
+                  bezier
+                  style={{
+                    marginVertical: 8,
+                    borderRadius: 0,
+                  }}
+                />
 
                 <View style={styles.buttonContainer}>
                   <TouchableOpacity style={styles.deleteButton} onPress={confirmGameDelete}>
