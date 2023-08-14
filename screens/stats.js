@@ -161,7 +161,7 @@ export default function StatsPage({ navigation }) {
 
 
       } else {
-        setPlan('pro')
+        setPlan('basic')
       }
     }
 
