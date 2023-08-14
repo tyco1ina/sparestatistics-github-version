@@ -60,3 +60,7 @@ target 'SpareStatistics' do
     __apply_Xcode_12_5_M1_post_install_workaround(installer)
   end
 end
+
+permissions_path = '../node_modules/react-native-permissions/ios'
+pod 'Permission-PhotoLibrary', :path => "../node_modules/react-native-permissions/ios/PhotoLibrary/Permission-PhotoLibrary.podspec"
+
