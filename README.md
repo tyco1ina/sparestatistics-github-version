@@ -16,3 +16,4 @@ Bowling scorekeeping can be tedious and therefore acts as a barrier to a consist
 
 # Technical Details
 
+[SpareStatistics AWS Infrastructure (1).pdf](https://github.com/tyco1ina/sparestatistics-github-version/files/13336186/SpareStatistics.AWS.Infrastructure.1.pdf)
